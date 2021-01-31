@@ -5,13 +5,12 @@
   guid="{8c4e810f-3df3-4a00-8276-176fa3c9f008}"
   numberOfEventIndicators="0">
 
-<CoSimulation
-  modelIdentifier="inc"
-  canHandleVariableCommunicationStepSize="true">
+<ModelExchange
+  modelIdentifier="inc">
   <SourceFiles>
     <File name="inc.c"/>
   </SourceFiles>
-</CoSimulation>
+</ModelExchange>
 
 <LogCategories>
   <Category name="logAll"/>
