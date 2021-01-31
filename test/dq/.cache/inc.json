@@ -1,0 +1,15 @@
+{
+"outputFile": "/home/jose/src/fmi.nim/test/dq/inc.so",
+"compile":[
+["/home/jose/src/fmi.nim/test/fmuTemplate.c", "gcc -c  -w -fmax-errors=3 -DDISABLE_PREFIX -DFMI2_FUNCTION_PREFIX=MyModel_ -I/home/jose/src/nimlang/fmusdk-master/fmu20/src/shared/include -I/home/jose/src/nimlang/fmusdk-master/fmu20/src/shared/include/ -w -fmax-errors=5 -DMODEL_IDENTIFIER=\\\"inc\\\" -DMODEL_GUID=\\\"{8c4e810f-3df3-4a00-8276-176fa3c9f008}\\\" -DNUMBER_OF_REALS=0 -DNUMBER_OF_INTEGERS=1 -DNUMBER_OF_BOOLEANS=0 -DNUMBER_OF_STRINGS=0 -DNUMBER_OF_STATES=0 -DNUMBER_OF_EVENT_INDICATORS=0  -fPIC  -I/home/jose/.choosenim/toolchains/nim-1.4.2/lib -I/home/jose/src/fmi.nim/test/dq -o /home/jose/src/fmi.nim/test/dq/.cache/fmuTemplate.c.o /home/jose/src/fmi.nim/test/fmuTemplate.c"],
+["/home/jose/src/fmi.nim/test/dq/.cache/stdlib_system.nim.c", "gcc -c  -w -fmax-errors=3 -DDISABLE_PREFIX -DFMI2_FUNCTION_PREFIX=MyModel_ -I/home/jose/src/nimlang/fmusdk-master/fmu20/src/shared/include -I/home/jose/src/nimlang/fmusdk-master/fmu20/src/shared/include/ -w -fmax-errors=5 -DMODEL_IDENTIFIER=\\\"inc\\\" -DMODEL_GUID=\\\"{8c4e810f-3df3-4a00-8276-176fa3c9f008}\\\" -DNUMBER_OF_REALS=0 -DNUMBER_OF_INTEGERS=1 -DNUMBER_OF_BOOLEANS=0 -DNUMBER_OF_STRINGS=0 -DNUMBER_OF_STATES=0 -DNUMBER_OF_EVENT_INDICATORS=0  -fPIC  -I/home/jose/.choosenim/toolchains/nim-1.4.2/lib -I/home/jose/src/fmi.nim/test/dq -o /home/jose/src/fmi.nim/test/dq/.cache/stdlib_system.nim.c.o /home/jose/src/fmi.nim/test/dq/.cache/stdlib_system.nim.c"],
+["/home/jose/src/fmi.nim/test/dq/.cache/@minc.nim.c", "gcc -c  -w -fmax-errors=3 -DDISABLE_PREFIX -DFMI2_FUNCTION_PREFIX=MyModel_ -I/home/jose/src/nimlang/fmusdk-master/fmu20/src/shared/include -I/home/jose/src/nimlang/fmusdk-master/fmu20/src/shared/include/ -w -fmax-errors=5 -DMODEL_IDENTIFIER=\\\"inc\\\" -DMODEL_GUID=\\\"{8c4e810f-3df3-4a00-8276-176fa3c9f008}\\\" -DNUMBER_OF_REALS=0 -DNUMBER_OF_INTEGERS=1 -DNUMBER_OF_BOOLEANS=0 -DNUMBER_OF_STRINGS=0 -DNUMBER_OF_STATES=0 -DNUMBER_OF_EVENT_INDICATORS=0  -fPIC  -I/home/jose/.choosenim/toolchains/nim-1.4.2/lib -I/home/jose/src/fmi.nim/test/dq -o /home/jose/src/fmi.nim/test/dq/.cache/@minc.nim.c.o /home/jose/src/fmi.nim/test/dq/.cache/@minc.nim.c"]],
+"link":[
+"/home/jose/src/fmi.nim/test/dq/.cache/fmuTemplate.c.o",
+"/home/jose/src/fmi.nim/test/dq/.cache/stdlib_system.nim.c.o",
+"/home/jose/src/fmi.nim/test/dq/.cache/@minc.nim.c.o"
+],
+"linkcmd": "gcc   -shared -o /home/jose/src/fmi.nim/test/dq/inc.so  /home/jose/src/fmi.nim/test/dq/.cache/fmuTemplate.c.o /home/jose/src/fmi.nim/test/dq/.cache/stdlib_system.nim.c.o /home/jose/src/fmi.nim/test/dq/.cache/@minc.nim.c.o  -lm   -ldl",
+"extraCmds": [],
+"stdinInput": false
+}
