@@ -1,3 +1,5 @@
 src/.cache
+src/folder
+src/xml
 result.csv
 *.c~
