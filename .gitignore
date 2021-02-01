@@ -1,5 +1,9 @@
 src/.cache
 src/folder
 src/xml
+src/genfmu
+src/inc.so
+src/fmuT*
+src/prueba.fmu
 result.csv
 *.c~
