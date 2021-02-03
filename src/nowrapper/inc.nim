@@ -136,83 +136,7 @@ proc setString(comp:ptr ModelInstance, vr:fmi2ValueReference, value:fmi2String):
 ## FMI functions
 ## ---------------------------------------------------------------------------
 
-proc fmi2Instantiate( instanceName: fmi2String, fmuType: fmi2Type, 
-                      fmuGUID: fmi2String, fmuResourceLocation: fmi2String,
-                      functions: ptr fmi2CallbackFunctions, visible: fmi2Boolean, 
-                      loggingOn: fmi2Boolean): fmi2Component =
-    ## ignoring arguments: fmuResourceLocation, visible
-    var comp = ptr ModelInstance
 
-    if functions.logger.isNul:
-        return nil
-
-    if functions.allocateMemory.isNil or functions.freeMemory.isNil:
-        functions.logger( functions.componentEnvironment, instanceName, fmi2Error, "error",
-                "fmi2Instantiate: Missing callback function.")
-        return nil
-    
-    if instanceName.isNil or instanceName.len == 0:
-        functions.logger( functions.componentEnvironment, "?", fmi2Error, "error",
-                "fmi2Instantiate: Missing instance name.")
-        return nil
-    
-    if fmuGUID.isNil or fmuGUID.len == 0:
-        functions.logger( functions.componentEnvironment, instanceName, fmi2Error, "error",
-                "fmi2Instantiate: Missing GUID.")
-        return nil
-    
-    if not fmuGUID == MODEL_GUID: #strcmp(fmuGUID, MODEL_GUID)) {
-        functions.logger(functions.componentEnvironment, instanceName, fmi2Error, "error",
-                fmt"fmi2Instantiate: Wrong GUID {fmtGUID}. Expected {MODEL_GUID}.")
-        return nil
-    
-    #comp = (ModelInstance *)functions.allocateMemory(1, sizeof(ModelInstance));
-    var comp:ModelInstance
-
-    if not comp.isNil:
-        var i:int
-        comp.r = (fmi2Real *)   functions.allocateMemory(NUMBER_OF_REALS,    sizeof(fmi2Real));
-        comp.i = (fmi2Integer *)functions.allocateMemory(NUMBER_OF_INTEGERS, sizeof(fmi2Integer));
-        comp.b = (fmi2Boolean *)functions.allocateMemory(NUMBER_OF_BOOLEANS, sizeof(fmi2Boolean));
-        comp.s = (fmi2String *) functions.allocateMemory(NUMBER_OF_STRINGS,  sizeof(fmi2String));
-        comp.isPositive = (fmi2Boolean *)functions.allocateMemory(NUMBER_OF_EVENT_INDICATORS,
-            sizeof(fmi2Boolean));
-        comp.instanceName = (char *)functions.allocateMemory(1 + strlen(instanceName), sizeof(char));
-        comp.GUID = (char *)functions.allocateMemory(1 + strlen(fmuGUID), sizeof(char));
-
-        # set all categories to on or off. fmi2SetDebugLogging should be called to choose specific categories.
-        for i in 0 ..< NUMBER_OF_CATEGORIES:
-            comp.logCategories[i] = loggingOn
-        
-    
-    if comp.isNil or comp.r.isNil or comp.i.isNil or comp.b.isNil or comp.s.isNil or comp.isPositive.isNil or
-       comp.instanceName.isNil or comp.GUID.isNil:
-        functions.logger(functions.componentEnvironment, instanceName, fmi2Error, "error",
-            "fmi2Instantiate: Out of memory.")
-        return nil
-    
-    comp.time = 0    # overwrite in fmi2SetupExperiment, fmi2SetTime
-    strcpy((char *)comp.instanceName, (char *)instanceName);
-    comp.type = fmuType
-    strcpy((char *)comp.GUID, (char *)fmuGUID);
-    comp.functions = functions
-    comp.componentEnvironment = functions.componentEnvironment
-    comp.loggingOn = loggingOn
-    comp.state = modelInstantiated
-    setStartValues(comp)    # to be implemented by the includer of this file
-    comp.isDirtyValues = fmi2True # because we just called setStartValues
-    comp.isNewEventIteration = fmi2False
-
-    comp.eventInfo.newDiscreteStatesNeeded = fmi2False
-    comp.eventInfo.terminateSimulation = fmi2False
-    comp.eventInfo.nominalsOfContinuousStatesChanged = fmi2False
-    comp.eventInfo.valuesOfContinuousStatesChanged = fmi2False
-    comp.eventInfo.nextEventTimeDefined = fmi2False
-    comp.eventInfo.nextEventTime = 0
-
-    filteredLog(comp, fmi2OK, LOG_FMI_CALL, "fmi2Instantiate: GUID={fmuGUID}")
-
-    return comp
 
 
 
@@ -310,15 +234,7 @@ proc fmi2Reset(c:fmi2Component):fmi2Status {.exportc:"$1"} =
     comp.isDirtyValues = fmi2True # because we just called setStartValues
     return fmi2OK
 
-## ---------------------------------------------------------------------------
-## FMI functions: class methods not depending of a specific model instance
-## ---------------------------------------------------------------------------
 
-proc fmi2GetVersion():cstring =
-    return fmi2Version
-
-proc fmi2GetTypesPlatform():cstring =
-    return fmi2TypesPlatform
 
 ## ---------------------------------------------------------------------------
 ## FMI functions: logging control, setters and getters for Real, Integer,

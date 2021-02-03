@@ -18,13 +18,16 @@ type
   ]##
 
 #  Pointer to FMU environment
-  fmi2FMUstate* {.impfmuTemplate.} = pointer
+  fmi2FMUstate* {.exportc:"$1".} = pointer
 
 #  Pointer to internal FMU state
-  fmi2ValueReference* {.impfmuTemplate.} = cuint
-  fmi2Real* {.impfmuTemplate.} = cdouble
-  fmi2Integer* {.impfmuTemplate.} = cint
-  fmi2Boolean* {.impfmuTemplate.} = cint
-  fmi2Char* {.impfmuTemplate.} = cchar
-  fmi2String* {.impfmuTemplate.} = cstring #ptr fmi2Char
-  fmi2Byte* {.impfmuTemplate.} = cchar  
+  fmi2ValueReference* {.exportc:"$1".} = cuint
+  fmi2Real* {.exportc:"$1".} = cdouble
+  fmi2Integer* {.exportc:"$1".} = cint
+  fmi2Boolean* {.exportc:"$1".} = cint
+  fmi2Char* {.exportc:"$1".} = cchar
+  fmi2String* {.exportc:"$1".}= cstring #ptr fmi2Char
+  fmi2Byte* {.exportc:"$1".} = cchar
+
+proc `$`(a:fmi2String): string =
+  $(a.cstring)

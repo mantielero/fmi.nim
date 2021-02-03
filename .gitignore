@@ -6,4 +6,5 @@ src/inc.so
 src/fmuT*
 src/prueba.fmu
 result.csv
+.vscode/
 *.c~

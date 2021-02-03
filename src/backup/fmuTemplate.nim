@@ -19,8 +19,7 @@
 {.hint[ConvFromXtoItselfNotNeeded]: off.}
 import status
 import enquire
-import modelinstance
-import fmi2TypesPlatform
+
 
 
 type
@@ -33,7 +32,9 @@ type
     fmi2Fatal   = 4,
     fmi2Pending = 5
   ]#
-
+  fmi2Type* = enum
+    fmi2ModelExchange = 0,
+    fmi2CoSimulation  = 1
 
   fmi2StatusKind = enum
     fmi2DoStepStatus       = 0,
@@ -41,7 +42,19 @@ type
     fmi2LastSuccessfulTime = 2,
     fmi2Terminated         = 3
   
-
+  ModelState* = enum
+    modelStartAndEnd        = (1 shl 0),  ##  ME state
+    modelInstantiated       = (1 shl 1),  ##  ME states
+    modelInitializationMode = (1 shl 2),  ##  ME states
+    modelEventMode          = (1 shl 3),  ##  CS states
+    modelContinuousTimeMode = (1 shl 4),  ##  CS states
+    modelStepComplete       = (1 shl 5),
+    modelStepInProgress     = (1 shl 6),
+    modelStepFailed         = (1 shl 7),
+    modelStepCanceled       = (1 shl 8),
+    modelTerminated         = (1 shl 9),
+    modelError              = (1 shl 10),
+    modelFatal              = (1 shl 11)
 
 
 const
@@ -64,24 +77,39 @@ const
 {.pragma: impfmuTemplateC, impfmuTemplate, cdecl.}
 
 type
-  #fmi2Component* {.impfmuTemplate.} = pointer
+  fmi2Component* {.impfmuTemplate.} = pointer
 
 #  Pointer to FMU instance
-  #fmi2ComponentEnvironment* {.impfmuTemplate.} = pointer
+  fmi2ComponentEnvironment* {.impfmuTemplate.} = pointer
 
 #  Pointer to FMU environment
-  #fmi2FMUstate* {.impfmuTemplate.} = pointer
+  fmi2FMUstate* {.impfmuTemplate.} = pointer
 
 #  Pointer to internal FMU state
-  #fmi2ValueReference* {.impfmuTemplate.} = cuint
-  #fmi2Real* {.impfmuTemplate.} = cdouble
-  #fmi2Integer* {.impfmuTemplate.} = cint
-  #fmi2Boolean* {.impfmuTemplate.} = cint
-  #fmi2Char* {.impfmuTemplate.} = cchar
-  #fmi2String* {.impfmuTemplate.} = cstring #ptr fmi2Char
-  #fmi2Byte* {.impfmuTemplate.} = cchar
-
-
+  fmi2ValueReference* {.impfmuTemplate.} = cuint
+  fmi2Real* {.impfmuTemplate.} = cdouble
+  fmi2Integer* {.impfmuTemplate.} = cint
+  fmi2Boolean* {.impfmuTemplate.} = cint
+  fmi2Char* {.impfmuTemplate.} = cchar
+  fmi2String* {.impfmuTemplate.} = cstring #ptr fmi2Char
+  fmi2Byte* {.impfmuTemplate.} = cchar
+  fmi2CallbackLogger* {.impfmuTemplate.} = proc(a1: fmi2ComponentEnvironment, a2: fmi2String, a3: fmi2Status, a4: fmi2String, a5: fmi2String) {.cdecl.}
+  fmi2CallbackAllocateMemory* {.impfmuTemplate.} = proc(a1: cuint, a2: cuint) {.cdecl.}
+  fmi2CallbackFreeMemory* {.impfmuTemplate.} = proc(a1: pointer) {.cdecl.}
+  fmi2StepFinished* {.impfmuTemplate.} = proc(a1: fmi2ComponentEnvironment, a2: fmi2Status) {.cdecl.}
+  fmi2CallbackFunctions* {.impfmuTemplate, bycopy.} = object
+    logger*: fmi2CallbackLogger
+    allocateMemory*: fmi2CallbackAllocateMemory
+    freeMemory*: fmi2CallbackFreeMemory
+    stepFinished*: fmi2StepFinished
+    componentEnvironment*: fmi2ComponentEnvironment
+  fmi2EventInfo* {.impfmuTemplate, bycopy.} = object
+    newDiscreteStatesNeeded*: fmi2Boolean
+    terminateSimulation*: fmi2Boolean
+    nominalsOfContinuousStatesChanged*: fmi2Boolean
+    valuesOfContinuousStatesChanged*: fmi2Boolean
+    nextEventTimeDefined*: fmi2Boolean
+    nextEventTime*: fmi2Real
 
 #  reset alignment policy to the one set before reading this file
 #  Define fmi2 function pointer types to simplify dynamic loading
@@ -230,7 +258,25 @@ const
 #define MASK_fmi2GetStringStatus         MASK_fmi2GetStatus
 
 ]#
-
+type
+  ModelInstance* {.impfmuTemplate, bycopy.} = object
+    r*: ptr fmi2Real
+    i*: ptr UncheckedArray[fmi2Integer] 
+    b*: ptr fmi2Boolean
+    s*: ptr fmi2String
+    isPositive*: ptr fmi2Boolean
+    time*: fmi2Real
+    instanceName*: fmi2String
+    `type`*: fmi2Type
+    GUID*: fmi2String
+    functions*: ptr fmi2CallbackFunctions
+    loggingOn*: fmi2Boolean
+    logCategories*: array[4, fmi2Boolean]
+    componentEnvironment*: fmi2ComponentEnvironment
+    state*: ModelState
+    eventInfo*: fmi2EventInfo
+    isDirtyValues*: fmi2Boolean
+    isNewEventIteration*: fmi2Boolean
 
 
 
