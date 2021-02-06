@@ -1,4 +1,5 @@
 type
+  #josemaria* {.exportc:"$1"} = bool
   fmi2Component* {.exportc:"$1".} = pointer
     ##[
     This is a pointer to an FMU specific data structure that contains the information needed to
@@ -30,4 +31,10 @@ type
   fmi2Byte* {.exportc:"$1".} = cchar
 
 proc `$`(a:fmi2String): string =
+  #var b:josemaria = true
+  #echo(b)
   $(a.cstring)
+
+proc a() =
+  let a:fmi2Boolean = 1
+  echo (a)

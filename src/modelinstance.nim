@@ -1,27 +1,28 @@
-import fmi2TypesPlatform, fmi2type, fmi2callbackunctions, modelstate, fmi2eventinfo,status
-import strformat
 
-import inc 
+
+
+#import inc 
+
+const
+  fmi2True* = 1
+  fmi2False* = 0    
 
 # https://forum.nim-lang.org/t/7182#45378
 # https://forum.nim-lang.org/t/6980#43777mf
 
+
 const
-   MODEL_IDENTIFIER* = "inc"
-   MODEL_GUID* = "{8c4e810f-3df3-4a00-8276-176fa3c9f008}"
-
-   NUMBER_OF_REALS* = 0
-   NUMBER_OF_INTEGERS* = 1
-   NUMBER_OF_BOOLEANS* = 0
-   NUMBER_OF_STRINGS* = 0
-   NUMBER_OF_STATES* = 0
-   NUMBER_OF_EVENT_INDICATORS* = 0
-
-   NUMBER_OF_CATEGORIES* = 4   # Number of logging categorias
+  LOG_ALL* = 0
+  LOG_ERROR* = 1
+  LOG_FMI_CALL* = 2
+  LOG_EVENT* = 3
+  NUMBER_OF_CATEGORIES* = 4   # Number of logging categorias
    
 
+# {.exportc:"$1", bycopy.} 
+
 type
-  ModelInstance* {.exportc:"$1", bycopy.} = object
+  ModelInstance* = object
     r*:          ptr UncheckedArray[fmi2Real]#(NUMBER_OF_REALS)
     i*:          ptr UncheckedArray[fmi2Integer]#(NUMBER_OF_INTEGERS)
     b*:          ptr UncheckedArray[fmi2Boolean]#(NUMBER_OF_BOOLEANS)
@@ -33,7 +34,7 @@ type
     GUID*: fmi2String
     functions*: ptr fmi2CallbackFunctions
     loggingOn*: fmi2Boolean
-    logCategories*: array[NUMBER_OF_CATEGORIES, fmi2Boolean]
+    logCategories*: array[0..NUMBER_OF_CATEGORIES-1, fmi2Boolean]
     componentEnvironment*: fmi2ComponentEnvironment
     state*: ModelState
     eventInfo*: fmi2EventInfo
@@ -94,7 +95,7 @@ proc eventUpdate( comp: ptr ModelInstance, eventInfo:ptr fmi2EventInfo,
             eventInfo.nextEventTime        = 1 + comp.time
 
 #-------------------------------------------------
-
+include "logger"
 
 proc fmi2Instantiate( instanceName: fmi2String, fmuType: fmi2Type, 
                       fmuGUID: fmi2String, fmuResourceLocation: fmi2String,
@@ -158,28 +159,28 @@ proc fmi2Instantiate( instanceName: fmi2String, fmuType: fmi2Type,
     ]##
     #var comp = ptr ModelInstance
     #var comp:ptr ModelInstance
-
+    let f:fmi2CallbackFunctions = cast[fmi2CallbackFunctions](functions)
     if functions.logger.isNil:
         return nil
 
     if functions.allocateMemory.isNil or functions.freeMemory.isNil:
-        functions.logger( functions.componentEnvironment, instanceName, fmi2Error, "error",
-                "fmi2Instantiate: Missing callback function.")
+        #functions.logger( functions.componentEnvironment, instanceName, fmi2Error, "error".fmi2String,
+        #        "fmi2Instantiate: Missing callback function.".fmi2String)
         return nil
     
     if instanceName.isNil or instanceName.len == 0:
-        functions.logger( functions.componentEnvironment, "?", fmi2Error, "error",
-                "fmi2Instantiate: Missing instance name.")
+        #functions.logger( functions.componentEnvironment, "?", fmi2Error, "error",
+        #        "fmi2Instantiate: Missing instance name.")
         return nil
     
     if fmuGUID.isNil or fmuGUID.len == 0:
-        functions.logger( functions.componentEnvironment, instanceName, fmi2Error, "error",
-                "fmi2Instantiate: Missing GUID.")
+        #functions.logger( functions.componentEnvironment, instanceName, fmi2Error, "error",
+        #        "fmi2Instantiate: Missing GUID.")
         return nil
     #let fmuGUID = $(fmuGUID)
     if not ($(fmuGUID) == MODEL_GUID): #strcmp(fmuGUID, MODEL_GUID)) {
-        functions.logger(functions.componentEnvironment, instanceName, fmi2Error, "error",
-                fmt"fmi2Instantiate: Wrong GUID {$(fmuGUID)}. Expected {MODEL_GUID}.")
+        #functions.logger(functions.componentEnvironment, instanceName, fmi2Error, "error",
+        #        fmt"fmi2Instantiate: Wrong GUID {$(fmuGUID)}. Expected {MODEL_GUID}.")
         return nil
     
     #comp = (ModelInstance *)functions.allocateMemory(1, sizeof(ModelInstance));
@@ -221,7 +222,7 @@ proc fmi2Instantiate( instanceName: fmi2String, fmuType: fmi2Type,
     comp.componentEnvironment = functions.componentEnvironment
     comp.loggingOn = loggingOn
     comp.state = modelInstantiated
-    setStartValues(comp)    # <-------- to be implemented by the includer of this file
+    setStartValues( unsafeAddr(comp) )    # <-------- to be implemented by the includer of this file
     comp.isDirtyValues = fmi2True # because we just called setStartValues
     comp.isNewEventIteration = fmi2False
 
@@ -232,6 +233,105 @@ proc fmi2Instantiate( instanceName: fmi2String, fmuType: fmi2Type,
     comp.eventInfo.nextEventTimeDefined = fmi2False
     comp.eventInfo.nextEventTime = 0
 
-    filteredLog(comp, fmi2OK, LOG_FMI_CALL, fmt"fmi2Instantiate: GUID={fmuGUID}")
+    filteredLog( unsafeAddr(comp), fmi2OK, LOG_FMI_CALL, fmt"fmi2Instantiate: GUID={fmuGUID}")
 
     return unsafeAddr( comp )
+
+#------------
+include masks, helpers, getters, setters
+
+
+#proc setString*(comp:ptr ModelInstance, vr:fmi2ValueReference, value:fmi2String):fmi2Status =
+#    return fmi2SetString(comp, &vr, 1, &value)
+#-----------
+
+
+
+proc fmi2FreeInstance(c: fmi2Component) {.exportc:"$1".} =
+    ##[
+    Disposes the given instance, unloads the loaded model, and frees all the allocated memory
+    and other resources that have been allocated by the functions of the FMU interface. If a null
+    pointer is provided for “c”, the function call is ignored (does not have an effect).
+    ]##
+    var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+    if comp.isNil:
+        return
+    if (invalidState(comp, "fmi2FreeInstance", MASK_fmi2FreeInstance)):
+        return
+    filteredLog(comp, fmi2OK, LOG_FMI_CALL, "fmi2FreeInstance")
+
+    if not (comp.r.isNil):
+       comp.functions.freeMemory(comp.r)
+    if not (comp.i.isNil):
+       comp.functions.freeMemory(comp.i)
+    if not (comp.b.isNil):
+       comp.functions.freeMemory(comp.b)
+    if not (comp.s.isNil):
+        #var i:int
+        #for i in 0 ..< NUMBER_OF_STRINGS:
+        #    if (comp.s[i]):
+        #        comp.functions.freeMemory( comp.s[i] )
+        
+        comp.functions.freeMemory( comp.s )
+    #[
+    if (comp.isPositive):
+       comp.functions.freeMemory(comp.isPositive)
+
+    if (comp.instanceName):
+       comp.functions.freeMemory(comp.instanceName)
+   
+    if (comp.GUID):
+       comp.functions.freeMemory( comp.GUID )
+    ]#           
+    comp.functions.freeMemory(comp)
+
+proc fmi2SetDebugLogging( c: fmi2Component, loggingOn: fmi2Boolean, 
+                          nCategories: csize_t, categories: pointer):fmi2Status {.exportc:"$1".} =  #categories: ptr fmi2String
+    ##[
+    The function controls debug logging that is output via the logger function callback.
+    If loggingOn = fmi2True, debug logging is enabled, otherwise it is switched off.
+    If loggingOn = fmi2True and nCategories = 0, then all debug messages shall be
+    output.
+    If loggingOn=fmi2True and nCategories > 0, then only debug messages according to
+    the categories argument shall be output. Vector categories has
+    nCategories elements. The allowed values of categories are defined by the modeling
+    environment that generated the FMU. Depending on the generating modeling environment,
+    none, some or all allowed values for categories for this FMU are defined in the
+    modelDescription.xml file via element “fmiModelDescription.LogCategories”, see
+    section 2.2.4.
+    ]##
+    var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+    if invalidState(comp, "fmi2SetDebugLogging", MASK_fmi2SetDebugLogging):
+        return fmi2Error
+    comp.loggingOn = loggingOn
+    filteredLog(comp, fmi2OK, LOG_FMI_CALL, "fmi2SetDebugLogging")
+
+    # reset all categories
+    for j in 0 ..< NUMBER_OF_CATEGORIES:
+        comp.logCategories[j] = fmi2False
+
+    if nCategories == 0:
+        # no category specified, set all categories to have loggingOn value
+        for j in 0 ..< NUMBER_OF_CATEGORIES:
+            comp.logCategories[j] = loggingOn
+        
+    else:
+        # set specific categories on
+        for i in 0 ..< nCategories:
+            var categoryFound: fmi2Boolean  = fmi2False
+            #[
+            for j in 0 ..< NUMBER_OF_CATEGORIES:
+                if not (logCategoriesNames[j] == categories[i]):
+                    comp.logCategories[j] = loggingOn
+                    categoryFound = fmi2True
+                    break
+            ]#  
+            #[
+            if not categoryFound:
+                comp.functions.logger( comp.componentEnvironment, comp.instanceName, fmi2Warning,
+                    logCategoriesNames[LOG_ERROR],
+                    fmt"logging category '{categories[i]}' is not supported by model" )
+            
+            ]#
+    
+    return fmi2OK

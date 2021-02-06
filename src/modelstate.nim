@@ -13,3 +13,6 @@ type
     modelTerminated         = (1 shl 9),
     modelError              = (1 shl 10),
     modelFatal              = (1 shl 11)
+
+proc `or`*(x, y: ModelState): ModelState =
+  (x.uint or x.uint).ModelState

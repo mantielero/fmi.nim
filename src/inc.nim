@@ -1,27 +1,11 @@
 # nim c --nimcache:.cache --app:lib -o:inc.so inc.nim
-#import fmuTemplate
+
 import strformat
 
-
-type 
-  ModelExchange = object
-    id: string
-    guid: string
-    
-proc main =
-  var model:ModelExchange
-  model.id   = "inc"
-  model.guid = "{8c4e810f-3df3-4a00-8276-176fa3c9f008}"
-  const
-   MODEL_IDENTIFIER = "inc"
-   MODEL_GUID = "{8c4e810f-3df3-4a00-8276-176fa3c9f008}"
-  
-# Porting inc.c (a particular model)
 const
    MODEL_IDENTIFIER* = "inc"
    MODEL_GUID* = "{8c4e810f-3df3-4a00-8276-176fa3c9f008}"
-   
-   #define model size
+
    NUMBER_OF_REALS* = 0
    NUMBER_OF_INTEGERS* = 1
    NUMBER_OF_BOOLEANS* = 0
@@ -29,19 +13,11 @@ const
    NUMBER_OF_STATES* = 0
    NUMBER_OF_EVENT_INDICATORS* = 0
 
-
-
-
-{.passC: "-Ifmusdk-master/fmu20/src/shared/include/ -w -fmax-errors=5" .}
-
-{.passC: "-DMODEL_IDENTIFIER=\\\"" & MODEL_IDENTIFIER & "\\\"".}
-{.passC: "-DMODEL_GUID=\\\"" & MODEL_GUID & "\\\"".}
-{.passC: "-DNUMBER_OF_REALS=" & $NUMBER_OF_REALS .}
-{.passC: "-DNUMBER_OF_INTEGERS=" & $NUMBER_OF_INTEGERS .}
-{.passC: "-DNUMBER_OF_BOOLEANS=" & $NUMBER_OF_BOOLEANS .}
-{.passC: "-DNUMBER_OF_STRINGS=" & $NUMBER_OF_STRINGS .}
-{.passC: "-DNUMBER_OF_STATES=" & $NUMBER_OF_STATES .}
-{.passC: "-DNUMBER_OF_EVENT_INDICATORS=" & $NUMBER_OF_EVENT_INDICATORS .}
-{.passC: "-DDISABLE_PREFIX" .}
-#{.passC: "-include ../fmuTemplate.h".}
-{.compile: "./fmuTemplate2.c".} # Edited (with #include "fmuTemplate.h")
+include status  # enums: 
+include enquire  # fmi2GetVersion, fmi2GetTypesPlatform
+include fmi2TypesPlatform
+include fmi2type
+include fmi2callbackunctions
+include modelstate
+include fmi2eventinfo
+include modelinstance
