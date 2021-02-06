@@ -73,18 +73,20 @@ type
 const
    counter = 0
 
-proc setStartValues*( comp: ptr ModelInstance) {.exportc: "$1".} =
+{.push exportc: "$1",dynlib,cdecl.}
+
+proc setStartValues*( comp: ptr ModelInstance)  =
     comp.i[counter] = 1
 
 
-proc calculateValues( comp: ptr ModelInstance) {.exportc: "$1".}=
+proc calculateValues( comp: ptr ModelInstance) =
     if comp.state == modelInitializationMode:
         # set first time event
         comp.eventInfo.nextEventTimeDefined = fmi2True
         comp.eventInfo.nextEventTime        = 1 + comp.time
 
 proc eventUpdate( comp: ptr ModelInstance, eventInfo:ptr fmi2EventInfo,
-                  timeEvent:cint, isNewEventIteration:cint) {.exportc: "$1".} =
+                  timeEvent:int, isNewEventIteration:int) =
     if timeEvent != 0:
         comp.i[counter] += 1;
         if comp.i[counter] == 13:
@@ -94,6 +96,7 @@ proc eventUpdate( comp: ptr ModelInstance, eventInfo:ptr fmi2EventInfo,
             eventInfo.nextEventTimeDefined = fmi2True
             eventInfo.nextEventTime        = 1 + comp.time
 
+{.pop.}
 #-------------------------------------------------
 include "logger"
 

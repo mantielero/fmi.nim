@@ -13,6 +13,9 @@ const
    NUMBER_OF_STATES* = 0
    NUMBER_OF_EVENT_INDICATORS* = 0
 
+var DT_EVENT_DETECT* = 1e-10  # It could be modified
+
+
 include status  # enums: 
 include statuskind # enum:
 include enquire  # fmi2GetVersion, fmi2GetTypesPlatform
@@ -23,3 +26,7 @@ include modelstate
 include fmi2eventinfo
 include modelinstance
 include common
+
+#proc getEventIndicator*(comp:ptr ModelInstance, i:int)
+
+include cosimulation

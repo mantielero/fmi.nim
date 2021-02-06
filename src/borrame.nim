@@ -1,1 +1,1 @@
-var comp*: ptr ModelInstance = cast[ptr ModelInstance](c)
+eventUpdate(comp, addr(comp.eventInfo), timeEvent, fmi2True)

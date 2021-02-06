@@ -1,1 +1,1 @@
-ModelInstance *comp = (ModelInstance *)c;
+eventUpdate(comp, &comp->eventInfo, timeEvent, fmi2True);

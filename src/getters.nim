@@ -16,7 +16,7 @@ proc `[]`*(vr:ptr fmi2Real, n:uint64):fmi2Real =
     var v = cast[ptr UncheckedArray[fmi2Real]](vr) #fmi2ValueReference] 
     v[n] #= cast[typeof(vr_tmp)](realloc(vr, nvr.int * sizeof(fmi2ValueReference)))    
 
-proc `[]=`*(vr:ptr fmi2Real, n:uint64, val:fmi2Real) =
+proc `[]=`*[I:SomeInteger](vr:ptr fmi2Real, n:I, val:fmi2Real) =
     var vr = cast[ptr UncheckedArray[fmi2Real]](vr)
     vr[n] = val
 
