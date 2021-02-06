@@ -1,1 +1,1 @@
-strcpy((char *)comp.s[vr[i]], (char *)value[i]);
+ModelInstance *comp = (ModelInstance *)c;

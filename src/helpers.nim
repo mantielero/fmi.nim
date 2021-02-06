@@ -3,7 +3,7 @@
 ## ---------------------------------------------------------------------------
 
 proc invalidNumber*( comp:ptr ModelInstance, f:cstring, arg:cstring,
-                     n:cint, nExpected:cint):bool  = # {.exportc:"$1"}
+                     n:cint, nExpected:cint):bool  = 
     if n != nExpected:
         comp.state = modelError
         filteredLog(comp, fmi2Error, LOG_ERROR, fmt"{f}: Invalid argument {arg} = {n}. Expected {nExpected}.")
@@ -11,7 +11,7 @@ proc invalidNumber*( comp:ptr ModelInstance, f:cstring, arg:cstring,
     return false
 
 proc invalidState*( comp:ptr ModelInstance, f:cstring, 
-                    statesExpected:ModelState):bool  = #  {.exportc:"$1"}
+                    statesExpected:ModelState):bool  = 
     if comp.isNil:#comp  == nil:  # TODO: (!comp)
         return true
     if not (comp.state.cint > 0 and  statesExpected.cint > 0):
@@ -21,7 +21,7 @@ proc invalidState*( comp:ptr ModelInstance, f:cstring,
     
     return false
 
-proc nullPointer*(comp:ptr ModelInstance, f:cstring, arg:cstring, p:pointer):bool  {.exportc:"$1"} =
+proc nullPointer*(comp:ptr ModelInstance, f:cstring, arg:cstring, p:pointer):bool =
     if p.isNil:
         comp.state = modelError
         filteredLog(comp, fmi2Error, LOG_ERROR, fmt"{f}: Invalid argument {arg} = NULL.")
@@ -29,7 +29,7 @@ proc nullPointer*(comp:ptr ModelInstance, f:cstring, arg:cstring, p:pointer):boo
     
     return false
 
-proc vrOutOfRange*(comp:ptr ModelInstance, f:cstring,  vr:fmi2ValueReference, `end`:cint):bool  {.exportc:"$1"} =
+proc vrOutOfRange*(comp:ptr ModelInstance, f:cstring,  vr:fmi2ValueReference, `end`:cint):bool =
     if vr.cint >= `end`:
         filteredLog(comp, fmi2Error, LOG_ERROR, fmt"{f}: Illegal value reference {vr}.")
         comp.state = modelError
@@ -37,8 +37,8 @@ proc vrOutOfRange*(comp:ptr ModelInstance, f:cstring,  vr:fmi2ValueReference, `e
     
     return false
 
-proc unsupportedFunction*(c:ModelInstance, fName:cstring, statesExpected:ModelState):fmi2Status  {.exportc:"$1"} =
-    var comp:ptr ModelInstance = unsafeAddr(c)
+proc unsupportedFunction*(c: fmi2Component; fName: cstring; statesExpected: ModelState): fmi2Status =
+    var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     var log:fmi2CallbackLogger = comp.functions.logger
     if invalidState(comp, fName, statesExpected):
         return fmi2Error

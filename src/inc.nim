@@ -22,3 +22,4 @@ include fmi2callbackunctions
 include modelstate
 include fmi2eventinfo
 include modelinstance
+include common

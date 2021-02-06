@@ -1,1 +1,1 @@
-strcpy(cast[cstring](comp.s[vr[i]]), cast[cstring](value[i]))
+var comp*: ptr ModelInstance = cast[ptr ModelInstance](c)
