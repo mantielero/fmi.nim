@@ -1,22 +1,22 @@
 
-{.passC: "-DDISABLE_PREFIX".}
+#{.passC: "-DDISABLE_PREFIX".}
 
 
 #{.passC: "-DFMI2_Export".}
 
 
-{.passC: "-DFMI2_FUNCTION_PREFIX=MyModel_".}
+#{.passC: "-DFMI2_FUNCTION_PREFIX=MyModel_".}
 
 
-{.passC: "-I./fmusdk-master/fmu20/src/shared/include".}
+#{.passC: "-I./fmusdk-master/fmu20/src/shared/include".}
 
-{.passC: "-I./fmusdk-master/fmu20/src/shared".}
+#{.passC: "-I./fmusdk-master/fmu20/src/shared".}
 # Importing /home/jose/src/nimlang/fmusdk-master/fmu20/src/models/fmuTemplate.h
 # Generated at 2019-07-11T23:18:41+02:00
 # Command line:
 #   /home/jose/.nimble/pkgs/nimterop-0.1.0/nimterop/toast --pnim --preprocess --recurse --defines+=DISABLE_PREFIX --defines+=FMI2_Export --defines+=FMI2_FUNCTION_PREFIX=MyModel_ --includeDirs+=/home/jose/src/nimlang/fmusdk-master/fmu20/src/shared/include --includeDirs+=/home/jose/src/nimlang/fmusdk-master/fmu20/src/shared --nim:/usr/bin/nim /home/jose/src/nimlang/fmusdk-master/fmu20/src/models/fmuTemplate.h
 
-{.hint[ConvFromXtoItselfNotNeeded]: off.}
+#{.hint[ConvFromXtoItselfNotNeeded]: off.}
 #import fmi2TypesPlatform
 
 
@@ -43,8 +43,8 @@ type
 
 
 
-const
-  headerfmuTemplate {.used.} = "./fmusdk-master/fmu20/src/models/fmuTemplate.h"
+#const
+#  headerfmuTemplate {.used.} = "./fmusdk-master/fmu20/src/models/fmuTemplate.h"
 
   #  Values for fmi2Boolean
 
@@ -54,8 +54,8 @@ const
 
 
 
-{.pragma: impfmuTemplate, importc, header: headerfmuTemplate.}
-{.pragma: impfmuTemplateC, impfmuTemplate, cdecl.}
+#{.pragma: impfmuTemplate, importc, header: headerfmuTemplate.}
+#{.pragma: impfmuTemplateC, impfmuTemplate, cdecl.}
 
 #type
   #fmi2Component* {.impfmuTemplate.} = pointer

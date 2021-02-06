@@ -14,6 +14,7 @@ const
    NUMBER_OF_EVENT_INDICATORS* = 0
 
 include status  # enums: 
+include statuskind # enum:
 include enquire  # fmi2GetVersion, fmi2GetTypesPlatform
 include fmi2TypesPlatform
 include fmi2type

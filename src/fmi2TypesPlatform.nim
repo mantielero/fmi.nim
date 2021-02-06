@@ -22,19 +22,15 @@ type
   fmi2FMUstate* {.exportc:"$1".} = pointer
 
 #  Pointer to internal FMU state
-  fmi2ValueReference* {.exportc:"$1".} = cuint
-  fmi2Real* {.exportc:"$1".} = cdouble
-  fmi2Integer* {.exportc:"$1".} = cint
-  fmi2Boolean* {.exportc:"$1".} = cint
-  fmi2Char* {.exportc:"$1".} = cchar
+  fmi2ValueReference* {.exportc:"$1".} = uint32 # unsigned int
+  fmi2Real* {.exportc:"$1".} = float64   # double
+  fmi2Integer* {.exportc:"$1".} = int32  # int
+  fmi2Boolean* {.exportc:"$1".} = int32 #{.dynlib.}
+  fmi2Char* {.exportc:"$1".} = char
   fmi2String* {.exportc:"$1".}= cstring #ptr fmi2Char
-  fmi2Byte* {.exportc:"$1".} = cchar
+  fmi2Byte* {.exportc:"$1".} = char
 
 proc `$`(a:fmi2String): string =
   #var b:josemaria = true
   #echo(b)
   $(a.cstring)
-
-proc a() =
-  let a:fmi2Boolean = 1
-  echo (a)

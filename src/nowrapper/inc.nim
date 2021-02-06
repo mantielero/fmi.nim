@@ -1,5 +1,6 @@
 # nim c --nimcache:.cache --app:lib -o:inc.so inc.nim
-import fmuTemplate
+#{.deadCodeElim: off.}
+#import fmuTemplate
 import strformat
 
 # Porting inc.c (a particular model)
