@@ -3,15 +3,9 @@ import modelinstancetype
 import fmi2TypesPlatform, fmi2type, fmi2callbackfunctions, modelstate, fmi2eventinfo, logger
 import strformat
 import masks, helpers, getters, setters, status
-#import inc 
-
-  
 
 # https://forum.nim-lang.org/t/7182#45378
 # https://forum.nim-lang.org/t/6980#43777mf
-
-
-
 
 
 ##  Creation and destruction of FMU instances and setting debug status
@@ -20,25 +14,8 @@ import masks, helpers, getters, setters, status
 # fmi2FreeInstanceTYPE* {.impfmuTemplate.} = proc(a1: fmi2Component) {.cdecl.}
 
 
-#-------------------------------------------------
-# FROM inc.nim
-#const
-
-
-
-
-
-
-#{.push exportc: "$1",dynlib,cdecl.}
-
-
-
-#{.pop.}
-#-------------------------------------------------
-
-
-
 {.push exportc: "$1",dynlib,cdecl.}
+
 proc fmi2Instantiate*( instanceName: fmi2String, fmuType: fmi2Type, 
                       fmuGUID: fmi2String, fmuResourceLocation: fmi2String,
                       functions: ptr fmi2CallbackFunctions, visible: fmi2Boolean, 
@@ -101,8 +78,10 @@ proc fmi2Instantiate*( instanceName: fmi2String, fmuType: fmi2Type,
     ]##
     #var comp = ptr ModelInstance
     #var comp:ptr ModelInstance
+    #echo repr functions
     let f:fmi2CallbackFunctions = cast[fmi2CallbackFunctions](functions)
-    if functions.logger.isNil:
+    #echo repr f
+    if f.logger.isNil:
         return nil
 
     if functions.allocateMemory.isNil or functions.freeMemory.isNil:
@@ -127,7 +106,6 @@ proc fmi2Instantiate*( instanceName: fmi2String, fmuType: fmi2Type,
     
     #comp = (ModelInstance *)functions.allocateMemory(1, sizeof(ModelInstance));
     var comp:ModelInstance
-
     #[
     if not comp.isNil:
 
@@ -158,12 +136,13 @@ proc fmi2Instantiate*( instanceName: fmi2String, fmuType: fmi2Type,
     comp.`type` = fmuType
     comp.GUID   = fmuGUID
 
-
-
     comp.functions = functions
+    #echo repr comp      
     comp.componentEnvironment = functions.componentEnvironment
+    
     comp.loggingOn = loggingOn
     comp.state = modelInstantiated
+  
     setStartValues( unsafeAddr(comp) )    # <-------- to be implemented by the includer of this file
     comp.isDirtyValues = fmi2True # because we just called setStartValues
     comp.isNewEventIteration = fmi2False
@@ -183,8 +162,8 @@ proc fmi2Instantiate*( instanceName: fmi2String, fmuType: fmi2Type,
 
 
 
-#proc setString*(comp:ptr ModelInstance, vr:fmi2ValueReference, value:fmi2String):fmi2Status =
-#    return fmi2SetString(comp, &vr, 1, &value)
+proc setString*(comp:ptr ModelInstance, vr:fmi2ValueReference, value:fmi2String):fmi2Status =
+    return fmi2SetString(comp, unsafeAddr(vr), 1, unsafeAddr(value))
 #-----------
 
 

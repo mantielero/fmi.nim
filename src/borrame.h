@@ -1,1 +1,1 @@
-*value = comp->time;
+return fmi2SetString(comp, &vr, 1, &value);

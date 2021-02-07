@@ -14,17 +14,15 @@ const
    DT_EVENT_DETECT* = 1e-10  # It could be modified  
    counter = 0   
 
-when NUMBER_OF_STATES>0:
+when NUMBER_OF_STATES > 0:
    # array of value references of states
    var vrStates*: array[NUMBER_OF_STATES, fmi2ValueReference] = STATES
 
 
-#if NUMBER_OF_STATES>0
-#fmi2ValueReference vrStates[NUMBER_OF_STATES] = STATES;
-#endif
-
 proc setStartValues*( comp: ptr ModelInstance)  =
-    comp.i[counter] = 1
+    c = cast[ModelInstance](comp)
+    #echo repr c
+    c.i[counter] = 1
 
 
 proc calculateValues*( comp: ptr ModelInstance) =
