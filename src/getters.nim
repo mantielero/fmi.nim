@@ -2,40 +2,14 @@
 ## FMI functions: logging control, setters and getters for Real, Integer,
 ## Boolean, String
 ## ---------------------------------------------------------------------------
-
+import fmi2TypesPlatform, status, modelinstancetype, helpers, masks, logger
+import model
+import strformat
 #proc getReal() = 
 
 
 #proc `[]=`*(ptr fmi2Real) =
 
-proc `[]`*[T:SomeInteger](vr:ptr fmi2ValueReference, n:T):fmi2ValueReference =
-    var v = cast[ptr UncheckedArray[fmi2ValueReference]](vr) #fmi2ValueReference] 
-    v[n.uint64] #= cast[typeof(vr_tmp)](realloc(vr, nvr.int * sizeof(fmi2ValueReference)))
-
-proc `[]`*(vr:ptr fmi2Real, n:uint64):fmi2Real =
-    var v = cast[ptr UncheckedArray[fmi2Real]](vr) #fmi2ValueReference] 
-    v[n] #= cast[typeof(vr_tmp)](realloc(vr, nvr.int * sizeof(fmi2ValueReference)))    
-
-proc `[]=`*[I:SomeInteger](vr:ptr fmi2Real, n:I, val:fmi2Real) =
-    var vr = cast[ptr UncheckedArray[fmi2Real]](vr)
-    vr[n] = val
-
-proc `[]`*(vr:ptr fmi2Integer, n:uint64):fmi2Integer =
-    var v = cast[ptr UncheckedArray[fmi2Integer]](vr) #fmi2ValueReference] 
-    v[n] #= cast[typeof(vr_tmp)](realloc(vr, nvr.int * sizeof(fmi2ValueReference)))    
-
-proc `[]=`*(vr:ptr fmi2Integer, n:uint64, val:fmi2Integer) =
-    var vr = cast[ptr UncheckedArray[fmi2Integer]](vr)
-    vr[n] = val
-
-proc `[]=`*(vr:ptr fmi2String, n:uint64, val:fmi2String) =
-    var vr = cast[ptr UncheckedArray[fmi2String]](vr)
-    vr[n] = val
-
-
-proc `[]`*(vr:ptr fmi2String, n:uint64):fmi2String =
-    var v = cast[ptr UncheckedArray[fmi2String]](vr) #fmi2ValueReference] 
-    v[n] #= cast[typeof(vr_tmp)](realloc(vr, nvr.int * sizeof(fmi2ValueReference))) 
 
 
 {.push exportc: "$1",dynlib,cdecl.}

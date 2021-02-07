@@ -1,5 +1,10 @@
 {.push exportc:"$1",cdecl,dynlib.}
 
+import fmi2TypesPlatform, status, modelinstance, modelstate, 
+       modelinstancetype, helpers, masks, logger
+import model
+import strformat
+
 ## ---------------------------------------------------------------------------
 ## Functions for FMI for Co-Simulation
 ## ---------------------------------------------------------------------------
@@ -52,9 +57,8 @@ proc fmi2DoStep*(c: fmi2Component; currentCommunicationPoint: fmi2Real;
                 noSetFMUStatePriorToCurrentPoint: fmi2Boolean): fmi2Status =
     var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     var h:cdouble  = communicationStepSize / 10
-    var k,i:int
-    const
-      n = 10 # how many Euler steps to perform for one do step
+    #var k,i:int
+    var n = 10 # how many Euler steps to perform for one do step
     var prevState: array[max(NUMBER_OF_STATES, 1), cdouble]
     var prevEventIndicators: array[max(NUMBER_OF_EVENT_INDICATORS, 1), cdouble]
     var stateEvent:int = 0

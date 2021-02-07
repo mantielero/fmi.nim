@@ -1,3 +1,6 @@
+import status  
+import fmi2TypesPlatform
+
 type
   fmi2CallbackLogger*  = proc( a1: fmi2ComponentEnvironment, 
                                a2: fmi2String, 

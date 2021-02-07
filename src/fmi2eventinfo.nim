@@ -1,4 +1,4 @@
-#import fmi2TypesPlatform
+import fmi2TypesPlatform
 
 type
   fmi2EventInfo* {.exportc:"$1", bycopy.} = object

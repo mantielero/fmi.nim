@@ -1,5 +1,9 @@
 {.push exportc: "$1",dynlib,cdecl.}
 
+import fmi2TypesPlatform, status, modelinstancetype, helpers, masks, logger
+import model
+import strformat
+
 proc fmi2SetReal*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
                  value: ptr fmi2Real): fmi2Status {.exportc:"$1".} =
     var i:int

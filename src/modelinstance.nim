@@ -1,67 +1,19 @@
-
-
-
+import model
+import modelinstancetype
+import fmi2TypesPlatform, fmi2type, fmi2callbackfunctions, modelstate, fmi2eventinfo, logger
+import strformat
+import masks, helpers, getters, setters, status
 #import inc 
 
-const
-  fmi2True* = 1
-  fmi2False* = 0    
+  
 
 # https://forum.nim-lang.org/t/7182#45378
 # https://forum.nim-lang.org/t/6980#43777mf
 
 
-const
-  LOG_ALL* = 0
-  LOG_ERROR* = 1
-  LOG_FMI_CALL* = 2
-  LOG_EVENT* = 3
-  NUMBER_OF_CATEGORIES* = 4   # Number of logging categorias
-   
 
-# {.exportc:"$1", bycopy.} 
 
-type
-  ModelInstance* = object
-    r*:          ptr UncheckedArray[fmi2Real]#(NUMBER_OF_REALS)
-    i*:          ptr UncheckedArray[fmi2Integer]#(NUMBER_OF_INTEGERS)
-    b*:          ptr UncheckedArray[fmi2Boolean]#(NUMBER_OF_BOOLEANS)
-    s*:          ptr UncheckedArray[fmi2String] #(NUMBER_OF_STRINGS)
-    isPositive*: ptr UncheckedArray[fmi2Boolean]#(NUMBER_OF_EVENT_INDICATORS)
-    time*: fmi2Real
-    instanceName*: fmi2String
-    `type`*: fmi2Type
-    GUID*: fmi2String
-    functions*: ptr fmi2CallbackFunctions
-    loggingOn*: fmi2Boolean
-    logCategories*: array[0..NUMBER_OF_CATEGORIES-1, fmi2Boolean]
-    componentEnvironment*: fmi2ComponentEnvironment
-    state*: ModelState
-    eventInfo*: fmi2EventInfo
-    isDirtyValues*: fmi2Boolean
-    isNewEventIteration*: fmi2Boolean
 
-#[#
-type
-  ModelInstance2* {.impfmuTemplate, bycopy.} = object
-    r*: ptr fmi2Real
-    i*: ptr UncheckedArray[fmi2Integer] 
-    b*: ptr fmi2Boolean
-    s*: ptr fmi2String
-    isPositive*: ptr fmi2Boolean
-    time*: fmi2Real
-    instanceName*: fmi2String
-    `type`*: fmi2Type
-    GUID*: fmi2String
-    functions*: ptr fmi2CallbackFunctions
-    loggingOn*: fmi2Boolean
-    logCategories*: array[4, fmi2Boolean]
-    componentEnvironment*: fmi2ComponentEnvironment
-    state*: ModelState
-    eventInfo*: fmi2EventInfo
-    isDirtyValues*: fmi2Boolean
-    isNewEventIteration*: fmi2Boolean
-]#
 ##  Creation and destruction of FMU instances and setting debug status
 
 # fmi2InstantiateTYPE* {.impfmuTemplate.} = proc(a1: fmi2String, a2: fmi2Type, a3: fmi2String, a4: fmi2String, a5: ptr fmi2CallbackFunctions, a6: fmi2Boolean, a7: fmi2Boolean): fmi2Component {.cdecl.}
@@ -70,35 +22,20 @@ type
 
 #-------------------------------------------------
 # FROM inc.nim
-const
-   counter = 0
-
-{.push exportc: "$1",dynlib,cdecl.}
-
-proc setStartValues*( comp: ptr ModelInstance)  =
-    comp.i[counter] = 1
+#const
 
 
-proc calculateValues*( comp: ptr ModelInstance) =
-    if comp.state == modelInitializationMode:
-        # set first time event
-        comp.eventInfo.nextEventTimeDefined = fmi2True
-        comp.eventInfo.nextEventTime        = 1 + comp.time
 
-proc eventUpdate*( comp: ptr ModelInstance, eventInfo:ptr fmi2EventInfo,
-                  timeEvent:int, isNewEventIteration:int) =
-    if timeEvent != 0:
-        comp.i[counter] += 1;
-        if comp.i[counter] == 13:
-            eventInfo.terminateSimulation  = fmi2True
-            eventInfo.nextEventTimeDefined = fmi2False
-        else:
-            eventInfo.nextEventTimeDefined = fmi2True
-            eventInfo.nextEventTime        = 1 + comp.time
 
-{.pop.}
+
+
+#{.push exportc: "$1",dynlib,cdecl.}
+
+
+
+#{.pop.}
 #-------------------------------------------------
-include "logger"
+
 
 
 {.push exportc: "$1",dynlib,cdecl.}
@@ -243,7 +180,7 @@ proc fmi2Instantiate*( instanceName: fmi2String, fmuType: fmi2Type,
     return unsafeAddr( comp )
 
 #------------
-include masks, helpers, getters, setters
+
 
 
 #proc setString*(comp:ptr ModelInstance, vr:fmi2ValueReference, value:fmi2String):fmi2Status =

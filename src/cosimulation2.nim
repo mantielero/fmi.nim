@@ -1,5 +1,6 @@
-
-
+import fmi2TypesPlatform, status, modelinstance, modelinstancetype, helpers,
+       statuskind, masks, logger
+import strformat
 
 # Inquire slave status 
 proc getStatus*(fname: cstring; c: fmi2Component; s: fmi2StatusKind): fmi2Status =
@@ -42,8 +43,9 @@ proc fmi2GetRealStatus*(c: fmi2Component; s: fmi2StatusKind; value: ptr fmi2Real
         var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
         if invalidState(comp, "fmi2GetRealStatus", MASK_fmi2GetRealStatus):
             return fmi2Error
+        # TODO
         #*value = comp.time
-        value[] = comp.time
+        #value[] = comp.time
         return fmi2OK
     
     return getStatus("fmi2GetRealStatus", c, s)
@@ -59,7 +61,8 @@ proc fmi2GetBooleanStatus*(c: fmi2Component; s: fmi2StatusKind;
         var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
         if invalidState(comp, "fmi2GetBooleanStatus", MASK_fmi2GetBooleanStatus):
             return fmi2Error
-        value[] = comp.eventInfo.terminateSimulation
+        # TODO
+        #value[] = comp.eventInfo.terminateSimulation
         return fmi2OK
     
     return getStatus("fmi2GetBooleanStatus", c, s)

@@ -1,10 +1,11 @@
+import modelinstancetype, fmi2TypesPlatform, status
 ## ---------------------------------------------------------------------------
 ## Private helpers logger
 ## ---------------------------------------------------------------------------
 # TODO: por qué no es un enum?
-  
 
-proc isCategoryLogged*(comp:ptr ModelInstance, categoryIndex:cint):bool {.exportc:"$1"} =
+
+proc isCategoryLogged*(comp:ptr ModelInstance, categoryIndex:cint):bool  =
     ## return fmi2True if logging category is on. Else return fmi2False.
     if categoryIndex < NUMBER_OF_CATEGORIES and ((comp.logCategories[categoryIndex] > 0) or (comp.logCategories[LOG_ALL] > 0)):
         return true

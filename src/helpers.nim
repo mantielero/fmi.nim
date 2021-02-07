@@ -1,6 +1,8 @@
 ## ---------------------------------------------------------------------------
 ## Private helpers used below to validate function arguments
 ## ---------------------------------------------------------------------------
+import modelinstancetype, modelstate, logger, status, fmi2TypesPlatform, fmi2callbackfunctions
+import strformat
 
 proc invalidNumber*( comp:ptr ModelInstance, f:cstring, arg:cstring,
                      n:cint, nExpected:cint):bool  = 

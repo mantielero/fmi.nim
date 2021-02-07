@@ -1,3 +1,7 @@
+import fmi2TypesPlatform, status, modelinstance, 
+       modelstate, fmi2type, modelinstancetype, helpers, masks, logger
+import model
+import strformat
 
 {.push exportc:"$1",cdecl,dynlib.}
 
@@ -85,19 +89,19 @@ proc fmi2SerializedFMUstateSize*(c:fmi2Component, FMUstate: ptr fmi2FMUstate,siz
     return unsupportedFunction(c, "fmi2SerializedFMUstateSize", MASK_fmi2SerializedFMUstateSize)
 
 proc fmi2SerializeFMUstate*(c: fmi2Component; FMUstate: fmi2FMUstate;
-                           serializedState: ptr fmi2Byte; size: csize): fmi2Status =
+                           serializedState: ptr fmi2Byte; size: csize_t): fmi2Status =
     return unsupportedFunction(c, "fmi2SerializeFMUstate", MASK_fmi2SerializeFMUstate)
 
 proc fmi2DeSerializeFMUstate*(c: fmi2Component; serializedState: ptr fmi2Byte;
-                             size: csize; FMUstate: ptr fmi2FMUstate): fmi2Status =
+                             size: csize_t; FMUstate: ptr fmi2FMUstate): fmi2Status =
     return unsupportedFunction(c, "fmi2DeSerializeFMUstate", MASK_fmi2DeSerializeFMUstate)
 
 
 proc fmi2GetDirectionalDerivative*(c: fmi2Component;
                                   vUnknown_ref: ptr fmi2ValueReference;
-                                  nUnknown: csize;
+                                  nUnknown: csize_t;
                                   vKnown_ref: ptr fmi2ValueReference;
-                                  nKnown: csize; dvKnown: ptr fmi2Real;
+                                  nKnown: csize_t; dvKnown: ptr fmi2Real;
                                   dvUnknown: ptr fmi2Real): fmi2Status =
     return unsupportedFunction(c, "fmi2GetDirectionalDerivative", MASK_fmi2GetDirectionalDerivative)
 
