@@ -30,3 +30,5 @@ include common
 #proc getEventIndicator*(comp:ptr ModelInstance, i:int)
 
 include cosimulation
+include cosimulation2
+#include modelexchange
