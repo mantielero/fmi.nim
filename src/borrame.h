@@ -1,1 +1,1 @@
-fmi2Status fmi2GetStringStatus(fmi2Component c, const fmi2StatusKind s, fmi2String *value);
+eventUpdate(comp, &comp->eventInfo, timeEvent, comp->isNewEventIteration);
