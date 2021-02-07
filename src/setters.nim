@@ -1,4 +1,4 @@
-
+{.push exportc: "$1",dynlib,cdecl.}
 
 proc fmi2SetReal*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
                  value: ptr fmi2Real): fmi2Status {.exportc:"$1".} =
@@ -122,3 +122,4 @@ proc fmi2SetString*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
     #    comp.isDirtyValues = fmi2True
     return fmi2OK
 
+{.pop.}

@@ -38,9 +38,10 @@ proc `[]`*(vr:ptr fmi2String, n:uint64):fmi2String =
     v[n] #= cast[typeof(vr_tmp)](realloc(vr, nvr.int * sizeof(fmi2ValueReference))) 
 
 
+{.push exportc: "$1",dynlib,cdecl.}
 
 proc fmi2GetReal*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
-                 value: ptr fmi2Real): fmi2Status {.exportc:"$1".} =
+                 value: ptr fmi2Real): fmi2Status =
     ## TODO: getReal: to implement it
     var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     
@@ -68,7 +69,7 @@ proc fmi2GetReal*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
 
 
 proc fmi2GetInteger*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
-                    value: ptr fmi2Integer): fmi2Status {.exportc:"$1".}  =
+                    value: ptr fmi2Integer): fmi2Status  =
     #var i:int
     var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2GetInteger", MASK_fmi2GetInteger):
@@ -91,7 +92,7 @@ proc fmi2GetInteger*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
     return fmi2OK
 
 proc fmi2GetBoolean*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
-                    value: ptr fmi2Boolean): fmi2Status {.exportc:"$1".} =
+                    value: ptr fmi2Boolean): fmi2Status  =
     var i:int
     var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2GetBoolean", MASK_fmi2GetBoolean):
@@ -120,7 +121,7 @@ proc fmi2GetBoolean*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
 
 
 proc fmi2GetString*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize;
-                   value: ptr fmi2String): fmi2Status {.exportc:"$1".} =
+                   value: ptr fmi2String): fmi2Status =
     var i:int
     var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2GetString", MASK_fmi2GetString):
@@ -142,3 +143,5 @@ proc fmi2GetString*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize;
         #filteredLog(comp, fmi2OK, LOG_FMI_CALL, fmt"fmi2GetString: #s{vr[i]}# = '{value[i]}'")
     
     return fmi2OK
+
+{.pop.}

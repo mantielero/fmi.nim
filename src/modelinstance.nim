@@ -79,13 +79,13 @@ proc setStartValues*( comp: ptr ModelInstance)  =
     comp.i[counter] = 1
 
 
-proc calculateValues( comp: ptr ModelInstance) =
+proc calculateValues*( comp: ptr ModelInstance) =
     if comp.state == modelInitializationMode:
         # set first time event
         comp.eventInfo.nextEventTimeDefined = fmi2True
         comp.eventInfo.nextEventTime        = 1 + comp.time
 
-proc eventUpdate( comp: ptr ModelInstance, eventInfo:ptr fmi2EventInfo,
+proc eventUpdate*( comp: ptr ModelInstance, eventInfo:ptr fmi2EventInfo,
                   timeEvent:int, isNewEventIteration:int) =
     if timeEvent != 0:
         comp.i[counter] += 1;
@@ -100,10 +100,12 @@ proc eventUpdate( comp: ptr ModelInstance, eventInfo:ptr fmi2EventInfo,
 #-------------------------------------------------
 include "logger"
 
-proc fmi2Instantiate( instanceName: fmi2String, fmuType: fmi2Type, 
+
+{.push exportc: "$1",dynlib,cdecl.}
+proc fmi2Instantiate*( instanceName: fmi2String, fmuType: fmi2Type, 
                       fmuGUID: fmi2String, fmuResourceLocation: fmi2String,
                       functions: ptr fmi2CallbackFunctions, visible: fmi2Boolean, 
-                      loggingOn: fmi2Boolean): fmi2Component {.exportc: "$1".} =
+                      loggingOn: fmi2Boolean): fmi2Component =
     ##[ ignoring arguments: fmuResourceLocation, visible
     (pag.19)
     The function returns a new instance of an FMU. If a null pointer is returned, then instantiation
@@ -250,7 +252,7 @@ include masks, helpers, getters, setters
 
 
 
-proc fmi2FreeInstance(c: fmi2Component) {.exportc:"$1".} =
+proc fmi2FreeInstance(c: fmi2Component) =
     ##[
     Disposes the given instance, unloads the loaded model, and frees all the allocated memory
     and other resources that have been allocated by the functions of the FMU interface. If a null
@@ -288,8 +290,8 @@ proc fmi2FreeInstance(c: fmi2Component) {.exportc:"$1".} =
     ]#           
     comp.functions.freeMemory(comp)
 
-proc fmi2SetDebugLogging( c: fmi2Component, loggingOn: fmi2Boolean, 
-                          nCategories: csize_t, categories: pointer):fmi2Status {.exportc:"$1".} =  #categories: ptr fmi2String
+proc fmi2SetDebugLogging*( c: fmi2Component, loggingOn: fmi2Boolean, 
+                          nCategories: csize_t, categories: pointer):fmi2Status =  #categories: ptr fmi2String
     ##[
     The function controls debug logging that is output via the logger function callback.
     If loggingOn = fmi2True, debug logging is enabled, otherwise it is switched off.
@@ -338,3 +340,4 @@ proc fmi2SetDebugLogging( c: fmi2Component, loggingOn: fmi2Boolean,
             ]#
     
     return fmi2OK
+{.pop.}

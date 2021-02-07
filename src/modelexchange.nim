@@ -1,9 +1,10 @@
+{.push exportc:"$1", dynlib, cdecl.}
 
 ## ---------------------------------------------------------------------------
 ## Functions for FMI2 for Model Exchange
 ## ---------------------------------------------------------------------------
 # Enter and exit the different modes 
-proc fmi2EnterEventMode(c: fmi2Component): fmi2Status =
+proc fmi2EnterEventMode*(c: fmi2Component): fmi2Status =
     var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2EnterEventMode", MASK_fmi2EnterEventMode):
         return fmi2Error
@@ -43,7 +44,7 @@ proc fmi2NewDiscreteStates*(c: fmi2Component; eventInfo: ptr fmi2EventInfo): fmi
     return fmi2OK
 
 
-proc fmi2EnterContinuousTimeMode(c: fmi2Component): fmi2Status =
+proc fmi2EnterContinuousTimeMode*(c: fmi2Component): fmi2Status =
     var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2EnterContinuousTimeMode", MASK_fmi2EnterContinuousTimeMode):
         return fmi2Error
@@ -56,7 +57,7 @@ proc fmi2EnterContinuousTimeMode(c: fmi2Component): fmi2Status =
 proc fmi2CompletedIntegratorStep*(c: fmi2Component;
                                  noSetFMUStatePriorToCurrentPoint: fmi2Boolean;
                                  enterEventMode: ptr fmi2Boolean;
-                                 terminateSimulation: ptr fmi2Boolean): fmi2Status =
+                                 terminateSimulation: ptr fmi2Boolean): fmi2Status = # {.exportc:"$1", cdecl, dynlib.}
     var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2CompletedIntegratorStep", MASK_fmi2CompletedIntegratorStep):
         return fmi2Error
@@ -71,7 +72,7 @@ proc fmi2CompletedIntegratorStep*(c: fmi2Component;
 
 
 # Providing independent variables and re-initialization of caching 
-proc fmi2SetTime*(c: fmi2Component; time: fmi2Real): fmi2Status =
+proc fmi2SetTime*(c: fmi2Component; time: fmi2Real): fmi2Status = # {.exportc: "$1",dynlib,cdecl.} 
     var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2SetTime", MASK_fmi2SetTime):
         return fmi2Error
@@ -175,3 +176,4 @@ proc fmi2GetNominalsOfContinuousStates*(c: fmi2Component; x_nominal: ptr fmi2Rea
         x_nominal[i] = 1
     return fmi2OK
 
+{.pop.}

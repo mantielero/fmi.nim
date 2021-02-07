@@ -1,4 +1,4 @@
-#{.push exportc:"$1",cdecl,dynlib.}
+
 
 
 # Inquire slave status 
@@ -30,6 +30,8 @@ proc getStatus*(fname: cstring; c: fmi2Component; s: fmi2StatusKind): fmi2Status
             fmt"{fname}: Can be called with fmi2Terminated when fmi2DoStep returned fmi2Discard. This is not the case.")
     
     return fmi2Discard
+
+{.push exportc:"$1",cdecl,dynlib.}
 
 proc fmi2GetStatus*(c: fmi2Component; s: fmi2StatusKind; value: ptr fmi2Status): fmi2Status =
     return getStatus("fmi2GetStatus", c, s)
@@ -65,3 +67,5 @@ proc fmi2GetBooleanStatus*(c: fmi2Component; s: fmi2StatusKind;
 
 proc fmi2GetStringStatus*(c: fmi2Component; s: fmi2StatusKind; value: ptr fmi2String): fmi2Status =
     return getStatus("fmi2GetStringStatus", c, s)
+
+{.pop.}

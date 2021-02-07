@@ -6,7 +6,10 @@ const
   fmi2Version = "2.0"  # pag. 19
   fmi2TypesPlatform = "default"
 
-proc fmi2GetVersion():cstring {.exportc:"$1",dynlib,cdecl} =
+
+{.push exportc: "$1",dynlib,cdecl.}
+
+proc fmi2GetVersion():string = #{.exportc:"$1",dynlib,cdecl} =
   ##[
   Returns the version of the “fmi2Functions.h” header file which was used to compile the
   functions of the FMU. The function returns “fmiVersion” which is defined in this header file.
@@ -15,7 +18,7 @@ proc fmi2GetVersion():cstring {.exportc:"$1",dynlib,cdecl} =
   ]##
   return fmi2Version
 
-proc fmi2GetTypesPlatform():cstring {.exportc:"$1",dynlib,cdecl} =
+proc fmi2GetTypesPlatform():string = # {.exportc:"$1",dynlib,cdecl} =
   ##[
   Returns the string to uniquely identify the “fmi2TypesPlatform.h” header file used for
   compilation of the functions of the FMU. The function returns a pointer to a static string specified
@@ -24,3 +27,5 @@ proc fmi2GetTypesPlatform():cstring {.exportc:"$1",dynlib,cdecl} =
   “default”).
   ]##  
   return fmi2TypesPlatform
+
+{.pop.}
