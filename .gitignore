@@ -7,4 +7,4 @@ src/fmuT*
 src/prueba.fmu
 result.csv
 .vscode/
-*.c~
+*~
