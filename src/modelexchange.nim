@@ -71,9 +71,9 @@ proc fmi2CompletedIntegratorStep*(c: fmi2Component;
     if nullPointer(comp, "fmi2CompletedIntegratorStep", "terminateSimulation", terminateSimulation):
         return fmi2Error
     filteredLog(comp, fmi2OK, LOG_FMI_CALL,"fmi2CompletedIntegratorStep")
-    # TODO
-    #enterEventMode[] = fmi2False
-    #terminateSimulation[] = fmi2False
+
+    enterEventMode[] = fmi2False
+    terminateSimulation[] = fmi2False
     return fmi2OK
 
 
@@ -96,15 +96,12 @@ proc fmi2SetContinuousStates*(c: fmi2Component; x: ptr fmi2Real; nx: csize_t): f
         return fmi2Error
     if nullPointer(comp, "fmi2SetContinuousStates", "x[]", x):
         return fmi2Error
-    if NUMBER_OF_STATES > 0:
+    when NUMBER_OF_STATES > 0:
         for i in 0 ..< nx:
-            # TODO
-            discard
-            #var vr: fmi2ValueReference = vrStates[i]
-            #filteredLog(comp, fmi2OK, LOG_FMI_CALL, "fmi2SetContinuousStates: #r{vr}#={x[i]}")
-            #assert(vr < NUMBER_OF_REALS)
-            #comp.r[vr] = x[i]
-    
+            var vr: fmi2ValueReference = vrStates[i]
+            filteredLog(comp, fmi2OK, LOG_FMI_CALL, "fmi2SetContinuousStates: #r{vr}#={x[i]}")
+            assert(vr < NUMBER_OF_REALS)
+            comp.r[vr] = x[i]
     return fmi2OK
 
 
@@ -118,13 +115,11 @@ proc fmi2GetDerivatives*(c: fmi2Component; derivatives: ptr fmi2Real; nx: csize_
         return fmi2Error
     if nullPointer(comp, "fmi2GetDerivatives", "derivatives[]", derivatives):
         return fmi2Error
-    if NUMBER_OF_STATES > 0:
+    when NUMBER_OF_STATES > 0:
         for i in 0 ..< nx:
-            discard
-            # TODO
-            #var vr: fmi2ValueReference = vrStates[i] + 1
-            #derivatives[i] = getReal(comp, vr)  # to be implemented by the includer of this file
-            #filteredLog(comp, fmi2OK, LOG_FMI_CALL, "fmi2GetDerivatives: #r%d# = %.16g", vr, derivatives[i])
+            var vr: fmi2ValueReference = vrStates[i] + 1
+            derivatives[i] = getReal(comp, vr)  # to be implemented by the includer of this file
+            filteredLog(comp, fmi2OK, LOG_FMI_CALL, fmt"fmi2GetDerivatives: #r{vr}# = {derivatives[i]}" )
     
     return fmi2OK
 
@@ -137,12 +132,10 @@ proc fmi2GetEventIndicators*(c: fmi2Component; eventIndicators: ptr fmi2Real;
         return fmi2Error
     if invalidNumber(comp, "fmi2GetEventIndicators", "ni", ni.cint, NUMBER_OF_EVENT_INDICATORS):
         return fmi2Error
-    if NUMBER_OF_EVENT_INDICATORS > 0:
+    when NUMBER_OF_EVENT_INDICATORS > 0:
         for i in 0 ..< ni:
-            # TODO
-            discard
-            #eventIndicators[i] = getEventIndicator(comp, i) # to be implemented by the includer of this file
-            #filteredLog(comp, fmi2OK, LOG_FMI_CALL, "fmi2GetEventIndicators: z{i} = {eventIndicators[i]}")
+            eventIndicators[i] = getEventIndicator(comp, i) # to be implemented by the includer of this file
+            filteredLog(comp, fmi2OK, LOG_FMI_CALL, "fmi2GetEventIndicators: z{i} = {eventIndicators[i]}")
     
     return fmi2OK
 
@@ -156,13 +149,11 @@ proc fmi2GetContinuousStates*(c: fmi2Component; states: ptr fmi2Real; nx: csize_
         return fmi2Error
     if nullPointer(comp, "fmi2GetContinuousStates", "states[]", states):
         return fmi2Error
-    if NUMBER_OF_STATES > 0:
+    when NUMBER_OF_STATES > 0:
         for i in 0 ..< nx:
-            discard
-            # TODO
-            #var vr:fmi2ValueReference = vrStates[i]
-            #states[i] = getReal(comp, vr) # to be implemented by the includer of this file
-            #filteredLog(comp, fmi2OK, LOG_FMI_CALL, "fmi2GetContinuousStates: #r%u# = %.16g", vr, states[i])
+            var vr:fmi2ValueReference = vrStates[i]
+            states[i] = getReal(comp, vr) # to be implemented by the includer of this file
+            filteredLog(comp, fmi2OK, LOG_FMI_CALL, fmt"fmi2GetContinuousStates: #r{vr}# = {states[i]}" )
         
     return fmi2OK
 

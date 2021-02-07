@@ -8,7 +8,7 @@
 # readelf -Ws fmuTmpJSOGwH/binaries/linux64/inc.so | grep fmi2 > original.txt 
 # awk '{print $8}' original.txt > original_functions.txt
 # awk '{print $8}' nueva.txt > nueva_functions.txt
-{.deadCodeElim: off.}
+#{.deadCodeElim: off.}
 
 #include status  # enums: 
 #include statuskind # enum:

@@ -1,1 +1,1 @@
-eventUpdate(comp, addr(comp.eventInfo), timeEvent, comp.isNewEventIteration)
+value[] = comp.time

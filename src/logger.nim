@@ -2,8 +2,6 @@ import modelinstancetype, fmi2TypesPlatform, status
 ## ---------------------------------------------------------------------------
 ## Private helpers logger
 ## ---------------------------------------------------------------------------
-# TODO: por qué no es un enum?
-
 
 proc isCategoryLogged*(comp:ptr ModelInstance, categoryIndex:cint):bool  =
     ## return fmi2True if logging category is on. Else return fmi2False.
@@ -11,17 +9,15 @@ proc isCategoryLogged*(comp:ptr ModelInstance, categoryIndex:cint):bool  =
         return true
     return false  
 
-
 proc logCategoriesNames*(idx: cint):fmi2String =
   let categoriesNames: seq[string] = @["logAll", "logError", "logFmiCall", "logEvent"]
   return categoriesNames[idx].fmi2String
-
 
 proc filteredLog*(instance:ptr ModelInstance, status:fmi2Status, categoryIndex:cint, message:cstring) =
    if status == fmi2Error or 
       status == fmi2Fatal or 
       isCategoryLogged(instance, categoryIndex):
       let log = instance.functions.logger
-      # TODO
-      #log( instance.functions.componentEnvironment, instance.instanceName,
-      #     status, logCategoriesNames(categoryIndex), message.fmi2String )
+
+      log( instance.functions.componentEnvironment, instance.instanceName,
+           status, logCategoriesNames(categoryIndex), message.fmi2String )

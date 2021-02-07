@@ -81,36 +81,28 @@ proc fmi2DoStep*(c: fmi2Component; currentCommunicationPoint: fmi2Real;
         return fmi2Error
     
 
-    if NUMBER_OF_EVENT_INDICATORS > 0:
+    when NUMBER_OF_EVENT_INDICATORS > 0:
         # initialize previous event indicators with current values
-
-        #TODO
-        for i in 0 ..< NUMBER_OF_EVENT_INDICATORS:
-            discard
-           #prevEventIndicators[i] = getEventIndicator(comp, i)  # <-- // to be implemented by the includer of this file
+        for i in 0 ..< NUMBER_OF_EVENT_INDICATORS: 
+           prevEventIndicators[i] = getEventIndicator(comp, i)  # <-- // to be implemented by the includer of this file
     
     # break the step into n steps and do forward Euler.
     comp.time = currentCommunicationPoint
     for k in 0 ..< n:
         comp.time += h
 
-    if NUMBER_OF_STATES > 0:
+    when NUMBER_OF_STATES > 0:
         for i in 0 ..< NUMBER_OF_STATES:
-            discard
-            #TODO
-            #prevState[i] = comp.r[vrStates[i]]
+            prevState[i] = comp.r[vrStates[i]]
         
         for i in 0 ..< NUMBER_OF_STATES:
-            discard
-            #var vr:fmi2ValueReference = vrStates[i]
-            # TODO
-            #comp.r[vr] += h * getReal(comp, vr + 1)  # forward Euler step
+            var vr:fmi2ValueReference = vrStates[i]
+            comp.r[vr] += h * getReal(comp, vr + 1)  # forward Euler step
 
-    if NUMBER_OF_EVENT_INDICATORS > 0:
+    when NUMBER_OF_EVENT_INDICATORS > 0:
         # check for state event
         for i in 0 ..< NUMBER_OF_EVENT_INDICATORS:
-            # TODO:
-            #var ei:double = getEventIndicator(comp, i)
+            var ei:double = getEventIndicator(comp, i)
             var ei:float = 0.0  # <---- borrame
             if ei * prevEventIndicators[i] < 0 :
                 var tmp:string

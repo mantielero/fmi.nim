@@ -5,18 +5,12 @@
 import fmi2TypesPlatform, status, modelinstancetype, helpers, masks, logger
 import model
 import strformat
-#proc getReal() = 
-
-
-#proc `[]=`*(ptr fmi2Real) =
-
 
 
 {.push exportc: "$1",dynlib,cdecl.}
 
 proc fmi2GetReal*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
                  value: ptr fmi2Real): fmi2Status =
-    ## TODO: getReal: to implement it
     var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     
     if invalidState(comp, "fmi2GetReal", MASK_fmi2GetReal):
@@ -29,13 +23,13 @@ proc fmi2GetReal*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
         calculateValues(comp)
         comp.isDirtyValues = fmi2False
 
-    if NUMBER_OF_REALS > 0:
+    #---- Only compiled if NUMBER_OF_REALS is >0
+    when NUMBER_OF_REALS > 0:
         for i in 0 ..< nvr:
-
             if vrOutOfRange(comp, "fmi2GetReal", vr[i], NUMBER_OF_REALS):
                 return fmi2Error
-            #value[i] = getReal(comp, val) # <--------to be implemented by the includer of this file
-            value[i] = comp.r[vr[i]]            
+            value[i] = getReal(comp, val) # <--------to be implemented by the includer of this file
+            #value[i] = comp.r[vr[i]]            
             #value[i] = r[val] #getReal(comp, val)
             filteredLog(comp, fmi2OK, LOG_FMI_CALL, fmt"fmi2GetReal: #r{vr[i]}# = {value[i]}" )
     return fmi2OK
@@ -44,7 +38,6 @@ proc fmi2GetReal*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
 
 proc fmi2GetInteger*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
                     value: ptr fmi2Integer): fmi2Status  =
-    #var i:int
     var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2GetInteger", MASK_fmi2GetInteger):
         return fmi2Error
@@ -67,7 +60,6 @@ proc fmi2GetInteger*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
 
 proc fmi2GetBoolean*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
                     value: ptr fmi2Boolean): fmi2Status  =
-    var i:int
     var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2GetBoolean", MASK_fmi2GetBoolean):
         return fmi2Error
@@ -93,10 +85,8 @@ proc fmi2GetBoolean*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
     
     return fmi2OK
 
-
-proc fmi2GetString*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize;
+proc fmi2GetString*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
                    value: ptr fmi2String): fmi2Status =
-    var i:int
     var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2GetString", MASK_fmi2GetString):
         return fmi2Error
@@ -107,14 +97,16 @@ proc fmi2GetString*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize;
     if nvr > 0 and comp.isDirtyValues > 0:
         calculateValues(comp)
         comp.isDirtyValues = fmi2False
-    
+    var v = cast[ptr UncheckedArray[fmi2ValueReference]](vr)
+    var s = cast[ptr UncheckedArray[fmi2String]](comp.s)
+    var val = cast[ptr UncheckedArray[ptr fmi2String]](value)
     for i in 0 ..< nvr:
         if vrOutOfRange(comp, "fmi2GetString", vr[i], NUMBER_OF_STRINGS):
             return fmi2Error
 
-        # TODO: NO ME FUNCIONA LO SIGUIENTE
-        #value[i] = unsafeAddr(comp.s[vr[i]])
-        #filteredLog(comp, fmi2OK, LOG_FMI_CALL, fmt"fmi2GetString: #s{vr[i]}# = '{value[i]}'")
+        # WARNING: to be tested the following
+        val[i] = unsafeAddr( s[v[i]] )
+        filteredLog(comp, fmi2OK, LOG_FMI_CALL, fmt"fmi2GetString: #s{vr[i]}# = '{value[i]}'")
     
     return fmi2OK
 

@@ -14,7 +14,7 @@ proc invalidNumber*( comp:ptr ModelInstance, f:cstring, arg:cstring,
 
 proc invalidState*( comp:ptr ModelInstance, f:cstring, 
                     statesExpected:ModelState):bool  = 
-    if comp.isNil:#comp  == nil:  # TODO: (!comp)
+    if comp.isNil:
         return true
     if not (comp.state.cint > 0 and  statesExpected.cint > 0):
         comp.state = modelError

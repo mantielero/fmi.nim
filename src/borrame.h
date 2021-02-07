@@ -1,1 +1,1 @@
-eventUpdate(comp, &comp->eventInfo, timeEvent, comp->isNewEventIteration);
+*value = comp->time;
