@@ -20,9 +20,9 @@ when NUMBER_OF_STATES > 0:
 
 
 proc setStartValues*( comp: ptr ModelInstance)  =
-    c = cast[ModelInstance](comp)
-    #echo repr c
-    c.i[counter] = 1
+    var c = cast[ModelInstance](comp)
+    #echo repr c.GUID.string
+    c.i[counter] = 1  # Asigna al primer valor entero el valor "1"
 
 
 proc calculateValues*( comp: ptr ModelInstance) =

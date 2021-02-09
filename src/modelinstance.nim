@@ -22,9 +22,9 @@ proc fmi2Instantiate*( instanceName: fmi2String, fmuType: fmi2Type,
                       loggingOn: fmi2Boolean): fmi2Component =
     ##[ ignoring arguments: fmuResourceLocation, visible
     (pag.19)
-    The function returns a new instance of an FMU. If a null pointer is returned, then instantiation
-    failed. In that case, “functions->logger” is called with detailed information about the
-    reason. An FMU can be instantiated many times (provided capability flag
+    The function returns a new instance of an FMU or a null pointer when failed.
+    
+    An FMU can be instantiated many times (provided capability flag
     canBeInstantiatedOnlyOncePerProcess = false).
 
     This function must be called successfully before any of the following functions can be called.
@@ -79,50 +79,50 @@ proc fmi2Instantiate*( instanceName: fmi2String, fmuType: fmi2Type,
     #var comp = ptr ModelInstance
     #var comp:ptr ModelInstance
     #echo repr functions
-    let f:fmi2CallbackFunctions = cast[fmi2CallbackFunctions](functions)
-    #echo repr f
+    let f = cast[fmi2CallbackFunctions](functions)
+
+    # Case: we don't even have a logger
+    
     if f.logger.isNil:
         return nil
 
-    if functions.allocateMemory.isNil or functions.freeMemory.isNil:
-        #functions.logger( functions.componentEnvironment, instanceName, fmi2Error, "error".fmi2String,
-        #        "fmi2Instantiate: Missing callback function.".fmi2String)
+    if f.allocateMemory.isNil or f.freeMemory.isNil:
+        f.logger( functions.componentEnvironment, instanceName, fmi2Error, "error".fmi2String,
+                "fmi2Instantiate: Missing callback function.".fmi2String)
         return nil
     
     if instanceName.isNil or instanceName.len == 0:
-        #functions.logger( functions.componentEnvironment, "?", fmi2Error, "error",
-        #        "fmi2Instantiate: Missing instance name.")
+        f.logger( functions.componentEnvironment, "?", fmi2Error, "error",
+                "fmi2Instantiate: Missing instance name.")
         return nil
     
     if fmuGUID.isNil or fmuGUID.len == 0:
-        #functions.logger( functions.componentEnvironment, instanceName, fmi2Error, "error",
-        #        "fmi2Instantiate: Missing GUID.")
+        f.logger( functions.componentEnvironment, instanceName, fmi2Error, "error",
+                  "fmi2Instantiate: Missing GUID.")
         return nil
     #let fmuGUID = $(fmuGUID)
     if not ($(fmuGUID) == MODEL_GUID): #strcmp(fmuGUID, MODEL_GUID)) {
-        #functions.logger(functions.componentEnvironment, instanceName, fmi2Error, "error",
-        #        fmt"fmi2Instantiate: Wrong GUID {$(fmuGUID)}. Expected {MODEL_GUID}.")
+        f.logger( functions.componentEnvironment, instanceName, fmi2Error, "error",
+                  fmt"fmi2Instantiate: Wrong GUID {$(fmuGUID)}. Expected {MODEL_GUID}.")
         return nil
-    
+
     #comp = (ModelInstance *)functions.allocateMemory(1, sizeof(ModelInstance));
     var comp:ModelInstance
-    #[
     if not comp.isNil:
-
+        #[
         comp.r = cast[typeof(comp.r)](realloc(comp.r, NUMBER_OF_REALS    * sizeof(fmi2Real)))
         comp.i = cast[typeof(comp.i)](realloc(comp.i, NUMBER_OF_INTEGERS * sizeof(fmi2Integer)))
         comp.b = cast[typeof(comp.b)](realloc(comp.b, NUMBER_OF_BOOLEANS * sizeof(fmi2Boolean))) 
         comp.s = cast[typeof(comp.s)](realloc(comp.s, NUMBER_OF_STRINGS  * sizeof(fmi2String)))  
         comp.isPositive = cast[typeof(comp.isPositive)](realloc(comp.isPositive, NUMBER_OF_EVENT_INDICATORS * sizeof(fmi2Boolean)))     
-
+        ]#
         #comp.instanceName = (char *)functions.allocateMemory(1 + strlen(instanceName), sizeof(char));
         #comp.GUID = (char *)functions.allocateMemory(1 + strlen(fmuGUID), sizeof(char));
 
-        # set all categories to on or off. fmi2SetDebugLogging should be called to choose specific categories.
-        #var i:int        
+        # set all categories to on or off. fmi2SetDebugLogging should be called to choose specific categories.     
         for i in 0 ..< NUMBER_OF_CATEGORIES:
             comp.logCategories[i] = loggingOn
-    ]#  
+
     
     #[
     if comp.isNil or comp.r.isNil or comp.i.isNil or comp.b.isNil or comp.s.isNil or comp.isPositive.isNil or
@@ -135,13 +135,16 @@ proc fmi2Instantiate*( instanceName: fmi2String, fmuType: fmi2Type,
     comp.instanceName = instanceName
     comp.`type` = fmuType
     comp.GUID   = fmuGUID
+    echo repr comp
+    #echo fmt"{cast[int](addr(functions)):#x}"
 
-    comp.functions = functions
-    #echo repr comp      
-    comp.componentEnvironment = functions.componentEnvironment
+    comp.functions = functions   
+    
+    comp.componentEnvironment = f.componentEnvironment
     
     comp.loggingOn = loggingOn
-    comp.state = modelInstantiated
+    
+    comp.state = modelInstantiated   # State changed
   
     setStartValues( unsafeAddr(comp) )    # <-------- to be implemented by the includer of this file
     comp.isDirtyValues = fmi2True # because we just called setStartValues
