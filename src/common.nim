@@ -5,22 +5,31 @@ import strformat
 
 {.push exportc:"$1",cdecl,dynlib.}
 
-proc fmi2SetupExperiment*(c: fmi2Component; toleranceDefined: fmi2Boolean;
+#comp:ModelInstance
+proc fmi2SetupExperiment*(comp: ModelInstance; toleranceDefined: fmi2Boolean;
                          tolerance: fmi2Real; startTime: fmi2Real;
                          stopTimeDefined: fmi2Boolean; stopTime: fmi2Real): fmi2Status =
 
     # ignore arguments: stopTimeDefined, stopTime
-    var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+
+    echo "ENTERING: fmi2SetupExpetiment"
+    #echo repr c
+    #var comp = cast[ref ModelInstance](c)
+    echo comp.GUID
+
     if invalidState(comp, "fmi2SetupExperiment", MASK_fmi2SetupExperiment):
+    #if invalidState(cast[ptr ModelInstance](c), "fmi2SetupExperiment", MASK_fmi2SetupExperiment):        
+        echo "INVALID STATE!!!"
         return fmi2Error
     filteredLog( comp, fmi2OK, LOG_FMI_CALL, 
                  fmt"fmi2SetupExperiment: toleranceDefined={toleranceDefined} tolerance={tolerance}")
+    
     comp.time = startTime
     return fmi2OK
 
 
-proc fmi2EnterInitializationMode*(c: fmi2Component): fmi2Status =
-    var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+proc fmi2EnterInitializationMode*(comp: ModelInstance): fmi2Status =
+    ##var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2EnterInitializationMode", MASK_fmi2EnterInitializationMode):
         return fmi2Error
     filteredLog(comp, fmi2OK, LOG_FMI_CALL, "fmi2EnterInitializationMode")
@@ -28,8 +37,8 @@ proc fmi2EnterInitializationMode*(c: fmi2Component): fmi2Status =
     comp.state = modelInitializationMode
     return fmi2OK
 
-proc fmi2ExitInitializationMode*(c: fmi2Component): fmi2Status = 
-    var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+proc fmi2ExitInitializationMode*(comp:ModelInstance): fmi2Status = 
+    #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2ExitInitializationMode", MASK_fmi2ExitInitializationMode):
         return fmi2Error
     filteredLog(comp, fmi2OK, LOG_FMI_CALL, "fmi2ExitInitializationMode")
@@ -49,8 +58,8 @@ proc fmi2ExitInitializationMode*(c: fmi2Component): fmi2Status =
     return fmi2OK
 
 
-proc fmi2Terminate*(c: fmi2Component): fmi2Status = 
-    var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+proc fmi2Terminate*(comp:ModelInstance): fmi2Status = 
+    #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2Terminate", MASK_fmi2Terminate):
         return fmi2Error
     filteredLog(comp, fmi2OK, LOG_FMI_CALL, "fmi2Terminate")
@@ -58,15 +67,19 @@ proc fmi2Terminate*(c: fmi2Component): fmi2Status =
     comp.state = modelTerminated
     return fmi2OK
 
-
-proc fmi2Reset*(c:fmi2Component):fmi2Status =
-    var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+# comp: ModelInstance
+proc fmi2Reset*(comp: var ModelInstance):fmi2Status =
+    ##var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+    #echo comp.GUID
+    #var c = addr(comp)
+    #echo type c
     if invalidState(comp, "fmi2Reset", MASK_fmi2Reset):
         return fmi2Error
     filteredLog(comp, fmi2OK, LOG_FMI_CALL, "fmi2Reset")
 
     comp.state = modelInstantiated
-    setStartValues(comp) # to be implemented by the includer of this file
+    echo "INSTANTIATED IN RESET"
+    #setStartValues(c) # to be implemented by the includer of this file
     comp.isDirtyValues = fmi2True # because we just called setStartValues
     return fmi2OK
 
@@ -74,35 +87,35 @@ proc fmi2Reset*(c:fmi2Component):fmi2Status =
 
 
 
-proc fmi2GetFMUstate*(c: fmi2Component; FMUstate: ptr fmi2FMUstate): fmi2Status =
-    #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
-    return unsupportedFunction(c, "fmi2GetFMUstate", MASK_fmi2GetFMUstate)
+proc fmi2GetFMUstate*(comp:ModelInstance; FMUstate: ptr fmi2FMUstate): fmi2Status =
+    ##var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+    return unsupportedFunction(comp, "fmi2GetFMUstate", MASK_fmi2GetFMUstate)
 
-proc fmi2SetFMUstate*(c:fmi2Component; FMUstate: ptr fmi2FMUstate): fmi2Status =
-    return unsupportedFunction(c, "fmi2SetFMUstate", MASK_fmi2SetFMUstate)
+proc fmi2SetFMUstate*(comp: ModelInstance; FMUstate: ptr fmi2FMUstate): fmi2Status =
+    return unsupportedFunction(comp, "fmi2SetFMUstate", MASK_fmi2SetFMUstate)
 
-proc fmi2FreeFMUstate*(c:fmi2Component; FMUstate: ptr fmi2FMUstate): fmi2Status =
-    return unsupportedFunction(c, "fmi2FreeFMUstate", MASK_fmi2FreeFMUstate)
+proc fmi2FreeFMUstate*(comp: ModelInstance; FMUstate: ptr fmi2FMUstate): fmi2Status =
+    return unsupportedFunction(comp, "fmi2FreeFMUstate", MASK_fmi2FreeFMUstate)
 
 
-proc fmi2SerializedFMUstateSize*(c:fmi2Component, FMUstate: ptr fmi2FMUstate,size: ptr csize_t): fmi2Status =
-    return unsupportedFunction(c, "fmi2SerializedFMUstateSize", MASK_fmi2SerializedFMUstateSize)
+proc fmi2SerializedFMUstateSize*(comp: ModelInstance, FMUstate: ptr fmi2FMUstate,size: ptr csize_t): fmi2Status =
+    return unsupportedFunction(comp, "fmi2SerializedFMUstateSize", MASK_fmi2SerializedFMUstateSize)
 
-proc fmi2SerializeFMUstate*(c: fmi2Component; FMUstate: fmi2FMUstate;
+proc fmi2SerializeFMUstate*(comp:ModelInstance; FMUstate: fmi2FMUstate;
                            serializedState: ptr fmi2Byte; size: csize_t): fmi2Status =
-    return unsupportedFunction(c, "fmi2SerializeFMUstate", MASK_fmi2SerializeFMUstate)
+    return unsupportedFunction(comp, "fmi2SerializeFMUstate", MASK_fmi2SerializeFMUstate)
 
-proc fmi2DeSerializeFMUstate*(c: fmi2Component; serializedState: ptr fmi2Byte;
+proc fmi2DeSerializeFMUstate*(comp:ModelInstance; serializedState: ptr fmi2Byte;
                              size: csize_t; FMUstate: ptr fmi2FMUstate): fmi2Status =
-    return unsupportedFunction(c, "fmi2DeSerializeFMUstate", MASK_fmi2DeSerializeFMUstate)
+    return unsupportedFunction(comp, "fmi2DeSerializeFMUstate", MASK_fmi2DeSerializeFMUstate)
 
 
-proc fmi2GetDirectionalDerivative*(c: fmi2Component;
+proc fmi2GetDirectionalDerivative*(comp:ModelInstance;
                                   vUnknown_ref: ptr fmi2ValueReference;
                                   nUnknown: csize_t;
                                   vKnown_ref: ptr fmi2ValueReference;
                                   nKnown: csize_t; dvKnown: ptr fmi2Real;
                                   dvUnknown: ptr fmi2Real): fmi2Status =
-    return unsupportedFunction(c, "fmi2GetDirectionalDerivative", MASK_fmi2GetDirectionalDerivative)
+    return unsupportedFunction(comp, "fmi2GetDirectionalDerivative", MASK_fmi2GetDirectionalDerivative)
 
 {.pop.}

@@ -9,8 +9,8 @@ import strformat
 ## Functions for FMI2 for Model Exchange
 ## ---------------------------------------------------------------------------
 # Enter and exit the different modes 
-proc fmi2EnterEventMode*(c: fmi2Component): fmi2Status =
-    var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+proc fmi2EnterEventMode*(comp: ModelInstance): fmi2Status =
+    #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2EnterEventMode", MASK_fmi2EnterEventMode):
         return fmi2Error
     filteredLog(comp, fmi2OK, LOG_FMI_CALL, "fmi2EnterEventMode")
@@ -20,8 +20,8 @@ proc fmi2EnterEventMode*(c: fmi2Component): fmi2Status =
     return fmi2OK
 
 
-proc fmi2NewDiscreteStates*(c: fmi2Component; eventInfo: ptr fmi2EventInfo): fmi2Status =
-    var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+proc fmi2NewDiscreteStates*(comp: ModelInstance; eventInfo: ptr fmi2EventInfo): fmi2Status =
+    #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     var timeEvent: cint = 0
     if invalidState(comp, "fmi2NewDiscreteStates", MASK_fmi2NewDiscreteStates):
         return fmi2Error
@@ -49,8 +49,8 @@ proc fmi2NewDiscreteStates*(c: fmi2Component; eventInfo: ptr fmi2EventInfo): fmi
     return fmi2OK
 
 
-proc fmi2EnterContinuousTimeMode*(c: fmi2Component): fmi2Status =
-    var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+proc fmi2EnterContinuousTimeMode*(comp: ModelInstance): fmi2Status =
+    #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2EnterContinuousTimeMode", MASK_fmi2EnterContinuousTimeMode):
         return fmi2Error
     filteredLog(comp, fmi2OK, LOG_FMI_CALL,"fmi2EnterContinuousTimeMode")
@@ -59,11 +59,11 @@ proc fmi2EnterContinuousTimeMode*(c: fmi2Component): fmi2Status =
     return fmi2OK
 
 
-proc fmi2CompletedIntegratorStep*(c: fmi2Component;
+proc fmi2CompletedIntegratorStep*(comp: ModelInstance;
                                  noSetFMUStatePriorToCurrentPoint: fmi2Boolean;
                                  enterEventMode: ptr fmi2Boolean;
                                  terminateSimulation: ptr fmi2Boolean): fmi2Status = # {.exportc:"$1", cdecl, dynlib.}
-    var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+    #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2CompletedIntegratorStep", MASK_fmi2CompletedIntegratorStep):
         return fmi2Error
     if nullPointer(comp, "fmi2CompletedIntegratorStep", "enterEventMode", enterEventMode):
@@ -78,8 +78,8 @@ proc fmi2CompletedIntegratorStep*(c: fmi2Component;
 
 
 # Providing independent variables and re-initialization of caching 
-proc fmi2SetTime*(c: fmi2Component; time: fmi2Real): fmi2Status = # {.exportc: "$1",dynlib,cdecl.} 
-    var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+proc fmi2SetTime*(comp: ModelInstance; time: fmi2Real): fmi2Status = # {.exportc: "$1",dynlib,cdecl.} 
+    #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2SetTime", MASK_fmi2SetTime):
         return fmi2Error
     filteredLog(comp, fmi2OK, LOG_FMI_CALL, "fmi2SetTime: time={time:%.16g}")
@@ -87,8 +87,8 @@ proc fmi2SetTime*(c: fmi2Component; time: fmi2Real): fmi2Status = # {.exportc: "
     return fmi2OK
 
 
-proc fmi2SetContinuousStates*(c: fmi2Component; x: ptr fmi2Real; nx: csize_t): fmi2Status =
-    var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+proc fmi2SetContinuousStates*(comp: ModelInstance; x: ptr fmi2Real; nx: csize_t): fmi2Status =
+    #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     #var i:int
     if invalidState(comp, "fmi2SetContinuousStates", MASK_fmi2SetContinuousStates):
         return fmi2Error
@@ -106,9 +106,9 @@ proc fmi2SetContinuousStates*(c: fmi2Component; x: ptr fmi2Real; nx: csize_t): f
 
 
 # Evaluation of the model equations 
-proc fmi2GetDerivatives*(c: fmi2Component; derivatives: ptr fmi2Real; nx: csize_t): fmi2Status {.exportc:"$1", cdecl,dynlib.} =
+proc fmi2GetDerivatives*(comp: ModelInstance; derivatives: ptr fmi2Real; nx: csize_t): fmi2Status {.exportc:"$1", cdecl,dynlib.} =
     #var i:int 
-    var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+    #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2GetDerivatives", MASK_fmi2GetDerivatives):
         return fmi2Error
     if invalidNumber(comp, "fmi2GetDerivatives", "nx", nx.cint, NUMBER_OF_STATES):
@@ -124,10 +124,10 @@ proc fmi2GetDerivatives*(c: fmi2Component; derivatives: ptr fmi2Real; nx: csize_
     return fmi2OK
 
 
-proc fmi2GetEventIndicators*(c: fmi2Component; eventIndicators: ptr fmi2Real;
+proc fmi2GetEventIndicators*(comp: ModelInstance; eventIndicators: ptr fmi2Real;
                             ni: csize_t): fmi2Status =
     #var i:int
-    var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+    #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2GetEventIndicators", MASK_fmi2GetEventIndicators):
         return fmi2Error
     if invalidNumber(comp, "fmi2GetEventIndicators", "ni", ni.cint, NUMBER_OF_EVENT_INDICATORS):
@@ -140,9 +140,9 @@ proc fmi2GetEventIndicators*(c: fmi2Component; eventIndicators: ptr fmi2Real;
     return fmi2OK
 
 
-proc fmi2GetContinuousStates*(c: fmi2Component; states: ptr fmi2Real; nx: csize_t): fmi2Status =
+proc fmi2GetContinuousStates*(comp: ModelInstance; states: ptr fmi2Real; nx: csize_t): fmi2Status =
     #var i:int
-    var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+    #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2GetContinuousStates", MASK_fmi2GetContinuousStates):
         return fmi2Error
     if invalidNumber(comp, "fmi2GetContinuousStates", "nx", nx.cint, NUMBER_OF_STATES):
@@ -158,10 +158,10 @@ proc fmi2GetContinuousStates*(c: fmi2Component; states: ptr fmi2Real; nx: csize_
     return fmi2OK
 
 
-proc fmi2GetNominalsOfContinuousStates*(c: fmi2Component; x_nominal: ptr fmi2Real;
+proc fmi2GetNominalsOfContinuousStates*(comp: ModelInstance; x_nominal: ptr fmi2Real;
                                        nx: csize_t): fmi2Status =
     #var i: int 
-    var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+    #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2GetNominalsOfContinuousStates", MASK_fmi2GetNominalsOfContinuousStates):
         return fmi2Error
     if invalidNumber(comp, "fmi2GetNominalContinuousStates", "nx", nx.cint, NUMBER_OF_STATES):

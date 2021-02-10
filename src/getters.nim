@@ -9,9 +9,9 @@ import strformat
 
 {.push exportc: "$1",dynlib,cdecl.}
 
-proc fmi2GetReal*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
+proc fmi2GetReal*(comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize_t;
                  value: ptr fmi2Real): fmi2Status =
-    var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+    #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     
     if invalidState(comp, "fmi2GetReal", MASK_fmi2GetReal):
         return fmi2Error
@@ -36,9 +36,9 @@ proc fmi2GetReal*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
 
 
 
-proc fmi2GetInteger*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
+proc fmi2GetInteger*(comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize_t;
                     value: ptr fmi2Integer): fmi2Status  =
-    var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+    #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2GetInteger", MASK_fmi2GetInteger):
         return fmi2Error
     if nvr > 0 and nullPointer(comp, "fmi2GetInteger", "vr[]", vr):
@@ -58,9 +58,9 @@ proc fmi2GetInteger*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
     
     return fmi2OK
 
-proc fmi2GetBoolean*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
+proc fmi2GetBoolean*(comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize_t;
                     value: ptr fmi2Boolean): fmi2Status  =
-    var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+    #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2GetBoolean", MASK_fmi2GetBoolean):
         return fmi2Error
     if nvr > 0 and nullPointer(comp, "fmi2GetBoolean", "vr[]", vr):
@@ -85,9 +85,9 @@ proc fmi2GetBoolean*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
     
     return fmi2OK
 
-proc fmi2GetString*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
+proc fmi2GetString*(comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize_t;
                    value: ptr fmi2String): fmi2Status =
-    var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+    #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2GetString", MASK_fmi2GetString):
         return fmi2Error
     if nvr > 0 and nullPointer(comp, "fmi2GetString", "vr[]", vr):

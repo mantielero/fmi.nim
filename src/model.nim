@@ -19,19 +19,19 @@ when NUMBER_OF_STATES > 0:
    var vrStates*: array[NUMBER_OF_STATES, fmi2ValueReference] = STATES
 
 
-proc setStartValues*( comp: ptr ModelInstance)  =
-    var c = cast[ModelInstance](comp)
+proc setStartValues*( comp: ModelInstance)  =
+    #var c = cast[ModelInstance](comp)
     #echo repr c.GUID.string
-    c.i[counter] = 1  # Asigna al primer valor entero el valor "1"
+    comp.i[counter] = 1  # Asigna al primer valor entero el valor "1"
 
 
-proc calculateValues*( comp: ptr ModelInstance) =
+proc calculateValues*( comp: ModelInstance) =
     if comp.state == modelInitializationMode:
         # set first time event
         comp.eventInfo.nextEventTimeDefined = fmi2True
         comp.eventInfo.nextEventTime        = 1 + comp.time
 
-proc eventUpdate*( comp: ptr ModelInstance, eventInfo:ptr fmi2EventInfo,
+proc eventUpdate*( comp: ModelInstance, eventInfo:ptr fmi2EventInfo,
                   timeEvent:int, isNewEventIteration:int) =
     if timeEvent != 0:
         comp.i[counter] += 1

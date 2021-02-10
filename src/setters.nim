@@ -4,10 +4,10 @@ import fmi2TypesPlatform, status, modelinstancetype, helpers, masks, logger
 import model
 import strformat
 
-proc fmi2SetReal*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
+proc fmi2SetReal*(comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize_t;
                  value: ptr fmi2Real): fmi2Status {.exportc:"$1".} =
     var i:int
-    var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+    #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2SetReal", MASK_fmi2SetReal):
         return fmi2Error
     if nvr > 0 and nullPointer(comp, "fmi2SetReal", "vr[]", vr):
@@ -27,10 +27,10 @@ proc fmi2SetReal*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
     return fmi2OK
 
 
-proc fmi2SetInteger*( c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
+proc fmi2SetInteger*( comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize_t;
                       value: ptr fmi2Integer): fmi2Status {.exportc:"$1".} =
     var i:int
-    var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+    #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2SetInteger", MASK_fmi2SetInteger):
         return fmi2Error
     if nvr > 0 and nullPointer(comp, "fmi2SetInteger", "vr[]", vr):
@@ -50,10 +50,10 @@ proc fmi2SetInteger*( c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t
     return fmi2OK
 
 
-proc fmi2SetBoolean*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
+proc fmi2SetBoolean*(comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize_t;
                     value: ptr fmi2Boolean): fmi2Status {.exportc:"$1".} =
     var i:int
-    var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+    #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2SetBoolean", MASK_fmi2SetBoolean):
         return fmi2Error
     if nvr > 0 and nullPointer(comp, "fmi2SetBoolean", "vr[]", vr):
@@ -80,9 +80,9 @@ proc fmi2SetBoolean*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
     return fmi2OK
 
 
-proc fmi2SetString*(c: fmi2Component; vr: ptr fmi2ValueReference; nvr: csize_t;
+proc fmi2SetString*(comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize_t;
                    value: ptr fmi2String): fmi2Status {.exportc:"$1".} =
-    var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+    #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2SetString", MASK_fmi2SetString):
         return fmi2Error
     if nvr > 0 and nullPointer(comp, "fmi2SetString", "vr[]", vr):

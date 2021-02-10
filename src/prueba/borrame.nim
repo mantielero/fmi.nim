@@ -1,0 +1,1 @@
+return fmi2SetString(comp, addr(vr), 1, addr(value))

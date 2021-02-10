@@ -11,12 +11,13 @@ const
 # {.exportc:"$1", bycopy.} 
 
 type
-  ModelInstance* = object
-    r*:          ptr UncheckedArray[fmi2Real]#(NUMBER_OF_REALS)
-    i*:          ptr UncheckedArray[fmi2Integer]#(NUMBER_OF_INTEGERS)
-    b*:          ptr UncheckedArray[fmi2Boolean]#(NUMBER_OF_BOOLEANS)
-    s*:          ptr UncheckedArray[fmi2String] #(NUMBER_OF_STRINGS)
-    isPositive*: ptr UncheckedArray[fmi2Boolean]#(NUMBER_OF_EVENT_INDICATORS)
+  #myarray* = array[0..0, fmi2Integer]
+  ModelInstance* = ref object
+    r*:          seq[fmi2Real]#array[0..0, fmi2Real] #ptr UncheckedArray[fmi2Real]#(NUMBER_OF_REALS)
+    i*:          array[0..0, fmi2Integer] #newSeq[fmi2Integer](1) #ptr UncheckedArray[fmi2Integer]#(NUMBER_OF_INTEGERS)
+    b*:          seq[fmi2Boolean]#array[0..0, fmi2Boolean] #ptr UncheckedArray[fmi2Boolean]#(NUMBER_OF_BOOLEANS)
+    s*:          seq[fmi2String] #array[0..0, fmi2String] #ptr UncheckedArray[fmi2String] #(NUMBER_OF_STRINGS)
+    isPositive*: seq[fmi2Boolean] #array[0..0, fmi2Boolean]  #ptr UncheckedArray[fmi2Boolean]#(NUMBER_OF_EVENT_INDICATORS)
     time*: fmi2Real
     instanceName*: fmi2String
     `type`*: fmi2Type
@@ -29,3 +30,4 @@ type
     eventInfo*: fmi2EventInfo
     isDirtyValues*: fmi2Boolean
     isNewEventIteration*: fmi2Boolean
+ #ModelInstancePtr = ref ModelInstance
