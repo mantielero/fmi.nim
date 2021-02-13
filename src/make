@@ -1,7 +1,8 @@
-nim c --deadcodeElim:off --nimcache:.cache --app:lib -o:inc.so inc.nim
+#nim c --deadcodeElim:off   --nimcache:.cache --app:lib -o:inc.so model.nim
+nim c --deadcodeElim:off  --gc:arc --nimcache:.cache --app:lib -o:inc.so model.nim
 cp inc.so fmusdk-master/fmu20/src/models/inc/fmu/binaries/linux64/
 ./genfmu
 fmusdk-master/fmu20/bin/fmusim_me prueba.fmu 10 0.1
 readelf -Ws inc.so | grep fmi2 > nueva.txt
 awk '{print $8}' nueva.txt > nueva_functions.txt
-#rm -r fmuTmp*
+rm -r fmuTmp*

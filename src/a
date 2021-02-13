@@ -1,0 +1,1 @@
+nim c --deadcodeElim:off --gc:arc --nimcache:.cache --app:lib -o:inc.so model

@@ -1,7 +1,7 @@
 {.push exportc: "$1",dynlib,cdecl.}
 
-import fmi2TypesPlatform, status, modelinstancetype, helpers, masks, logger
-import model
+#import fmi2TypesPlatform, status, modelinstancetype, helpers, masks, logger
+#import model
 import strformat
 
 proc fmi2SetReal*(comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize_t;
@@ -21,7 +21,7 @@ proc fmi2SetReal*(comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize_t;
             return fmi2Error
         filteredLog(comp, fmi2OK, LOG_FMI_CALL, fmt"fmi2SetReal: #r{vr[i]}# = {value[i]}")
         comp.r[vr[i]] = value[i]
-    
+
     if nvr > 0:
        comp.isDirtyValues = fmi2True
     return fmi2OK
@@ -44,7 +44,7 @@ proc fmi2SetInteger*( comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csiz
             return fmi2Error
         filteredLog(comp, fmi2OK, LOG_FMI_CALL, fmt"fmi2SetInteger: #i{vr[i]}# = {value[i]}" )
         comp.i[vr[i]] = value[i]
-    
+
     if nvr > 0:
        comp.isDirtyValues = fmi2True
     return fmi2OK
@@ -73,8 +73,8 @@ proc fmi2SetBoolean*(comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize
             tmp = "false"
         filteredLog(comp, fmi2OK, LOG_FMI_CALL, fmt"fmi2SetBoolean: #b{vr[i]}# = {tmp}")
         comp.b[vr[i]] = value[i]
-    
-    if nvr > 0: 
+
+    if nvr > 0:
         comp.isDirtyValues = fmi2True
 
     return fmi2OK
@@ -117,10 +117,10 @@ proc fmi2SetString*(comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize_
                     comp.state = modelError
                     filteredLog(comp, fmi2Error, LOG_ERROR, "fmi2SetString: Out of memory.")
                     return fmi2Error
-                
-            
+
+
             strcpy(cast[cstring](comp.s[vr[i]]), cast[cstring](value[i]))
-        
+
         ]#
     #if nvr > 0:
     #    comp.isDirtyValues = fmi2True

@@ -1,14 +1,14 @@
 {.push exportc:"$1", dynlib, cdecl.}
-import fmi2TypesPlatform, status, modelinstance, modelstate, fmi2eventinfo, modelinstancetype,
-       helpers, masks, logger
+#import fmi2TypesPlatform, status, modelinstance, modelstate, fmi2eventinfo, modelinstancetype,
+#       helpers, masks, logger
        #modelstate
-import model
+#import model
 import strformat
 
 ## ---------------------------------------------------------------------------
 ## Functions for FMI2 for Model Exchange
 ## ---------------------------------------------------------------------------
-# Enter and exit the different modes 
+# Enter and exit the different modes
 proc fmi2EnterEventMode*(comp: ModelInstance): fmi2Status =
     #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2EnterEventMode", MASK_fmi2EnterEventMode):
@@ -34,7 +34,7 @@ proc fmi2NewDiscreteStates*(comp: ModelInstance; eventInfo: ptr fmi2EventInfo): 
 
     if (comp.eventInfo.nextEventTimeDefined > 0 and comp.eventInfo.nextEventTime <= comp.time):
         timeEvent = 1
-    
+
     eventUpdate(comp, addr(comp.eventInfo), timeEvent, comp.isNewEventIteration)
     comp.isNewEventIteration = fmi2False
 
@@ -77,8 +77,8 @@ proc fmi2CompletedIntegratorStep*(comp: ModelInstance;
     return fmi2OK
 
 
-# Providing independent variables and re-initialization of caching 
-proc fmi2SetTime*(comp: ModelInstance; time: fmi2Real): fmi2Status = # {.exportc: "$1",dynlib,cdecl.} 
+# Providing independent variables and re-initialization of caching
+proc fmi2SetTime*(comp: ModelInstance; time: fmi2Real): fmi2Status = # {.exportc: "$1",dynlib,cdecl.}
     #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2SetTime", MASK_fmi2SetTime):
         return fmi2Error
@@ -105,9 +105,9 @@ proc fmi2SetContinuousStates*(comp: ModelInstance; x: ptr fmi2Real; nx: csize_t)
     return fmi2OK
 
 
-# Evaluation of the model equations 
+# Evaluation of the model equations
 proc fmi2GetDerivatives*(comp: ModelInstance; derivatives: ptr fmi2Real; nx: csize_t): fmi2Status {.exportc:"$1", cdecl,dynlib.} =
-    #var i:int 
+    #var i:int
     #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2GetDerivatives", MASK_fmi2GetDerivatives):
         return fmi2Error
@@ -120,7 +120,7 @@ proc fmi2GetDerivatives*(comp: ModelInstance; derivatives: ptr fmi2Real; nx: csi
             var vr: fmi2ValueReference = vrStates[i] + 1
             derivatives[i] = getReal(comp, vr)  # to be implemented by the includer of this file
             filteredLog(comp, fmi2OK, LOG_FMI_CALL, fmt"fmi2GetDerivatives: #r{vr}# = {derivatives[i]}" )
-    
+
     return fmi2OK
 
 
@@ -136,7 +136,7 @@ proc fmi2GetEventIndicators*(comp: ModelInstance; eventIndicators: ptr fmi2Real;
         for i in 0 ..< ni:
             eventIndicators[i] = getEventIndicator(comp, i) # to be implemented by the includer of this file
             filteredLog(comp, fmi2OK, LOG_FMI_CALL, "fmi2GetEventIndicators: z{i} = {eventIndicators[i]}")
-    
+
     return fmi2OK
 
 
@@ -154,13 +154,13 @@ proc fmi2GetContinuousStates*(comp: ModelInstance; states: ptr fmi2Real; nx: csi
             var vr:fmi2ValueReference = vrStates[i]
             states[i] = getReal(comp, vr) # to be implemented by the includer of this file
             filteredLog(comp, fmi2OK, LOG_FMI_CALL, fmt"fmi2GetContinuousStates: #r{vr}# = {states[i]}" )
-        
+
     return fmi2OK
 
 
 proc fmi2GetNominalsOfContinuousStates*(comp: ModelInstance; x_nominal: ptr fmi2Real;
                                        nx: csize_t): fmi2Status =
-    #var i: int 
+    #var i: int
     #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2GetNominalsOfContinuousStates", MASK_fmi2GetNominalsOfContinuousStates):
         return fmi2Error

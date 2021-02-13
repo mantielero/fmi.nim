@@ -1,6 +1,6 @@
-import fmi2TypesPlatform, status, modelinstance, 
-       modelstate, fmi2type, modelinstancetype, helpers, masks, logger
-import model
+#import fmi2TypesPlatform, status, modelinstance,
+#       modelstate, fmi2type, modelinstancetype, helpers, masks, logger
+#import model
 import strformat
 
 {.push exportc:"$1",cdecl,dynlib.}
@@ -18,12 +18,12 @@ proc fmi2SetupExperiment*(comp: ModelInstance; toleranceDefined: fmi2Boolean;
     echo comp.GUID
 
     if invalidState(comp, "fmi2SetupExperiment", MASK_fmi2SetupExperiment):
-    #if invalidState(cast[ptr ModelInstance](c), "fmi2SetupExperiment", MASK_fmi2SetupExperiment):        
+    #if invalidState(cast[ptr ModelInstance](c), "fmi2SetupExperiment", MASK_fmi2SetupExperiment):
         echo "INVALID STATE!!!"
         return fmi2Error
-    filteredLog( comp, fmi2OK, LOG_FMI_CALL, 
+    filteredLog( comp, fmi2OK, LOG_FMI_CALL,
                  fmt"fmi2SetupExperiment: toleranceDefined={toleranceDefined} tolerance={tolerance}")
-    
+
     comp.time = startTime
     return fmi2OK
 
@@ -37,7 +37,7 @@ proc fmi2EnterInitializationMode*(comp: ModelInstance): fmi2Status =
     comp.state = modelInitializationMode
     return fmi2OK
 
-proc fmi2ExitInitializationMode*(comp:ModelInstance): fmi2Status = 
+proc fmi2ExitInitializationMode*(comp:ModelInstance): fmi2Status =
     #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2ExitInitializationMode", MASK_fmi2ExitInitializationMode):
         return fmi2Error
@@ -52,13 +52,13 @@ proc fmi2ExitInitializationMode*(comp:ModelInstance): fmi2Status =
     if comp.`type` == fmi2ModelExchange:
         comp.state = modelEventMode
         comp.isNewEventIteration = fmi2True
-    
+
     else:
         comp.state = modelStepComplete
     return fmi2OK
 
 
-proc fmi2Terminate*(comp:ModelInstance): fmi2Status = 
+proc fmi2Terminate*(comp:ModelInstance): fmi2Status =
     #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2Terminate", MASK_fmi2Terminate):
         return fmi2Error

@@ -1,4 +1,4 @@
-import modelstate
+#import modelstate
 #import bitops
 #[
 import bitops
@@ -11,7 +11,7 @@ echo fmt"{(a and b):b}"
 ]#
 
 #proc `|`(a,b:ModelState):bool =
-  
+
 
 const
   # ---------------------------------------------------------------------------
@@ -44,9 +44,9 @@ const
   MASK_fmi2ExitInitializationMode*  = modelInitializationMode
   MASK_fmi2GetReal* =  ( modelInitializationMode or modelEventMode or
                          modelContinuousTimeMode or modelStepComplete or modelStepFailed or modelStepCanceled or modelTerminated or modelError)
-  MASK_fmi2GetInteger* = MASK_fmi2GetReal 
+  MASK_fmi2GetInteger* = MASK_fmi2GetReal
   MASK_fmi2GetBoolean* = MASK_fmi2GetReal
-  MASK_fmi2GetString*  = MASK_fmi2GetReal  
+  MASK_fmi2GetString*  = MASK_fmi2GetReal
   MASK_fmi2SetReal*    = ( modelInstantiated or modelInitializationMode or
                            modelEventMode or modelContinuousTimeMode or
                            modelStepComplete)
@@ -99,5 +99,3 @@ const
   MASK_fmi2GetIntegerStatus* =        MASK_fmi2GetStatus
   MASK_fmi2GetBooleanStatus* =        MASK_fmi2GetStatus
   MASK_fmi2GetStringStatus* =         MASK_fmi2GetStatus
-
-

@@ -1,8 +1,8 @@
-import fmi2TypesPlatform, status, modelinstance, modelinstancetype, helpers,
-       statuskind, masks, logger
+#import fmi2TypesPlatform, status, modelinstance, modelinstancetype, helpers,
+#       statuskind, masks, logger
 import strformat
 
-# Inquire slave status 
+# Inquire slave status
 proc getStatus*(fname: cstring; comp: ModelInstance; s: fmi2StatusKind): fmi2Status =
     var statusKind: array[0..2, string] = ["fmi2DoStepStatus", "fmi2PendingStatus",
                                  "fmi2LastSuccessfulTime"]
@@ -14,22 +14,22 @@ proc getStatus*(fname: cstring; comp: ModelInstance; s: fmi2StatusKind): fmi2Sta
     filteredLog(comp, fmi2OK, LOG_FMI_CALL, fmt"{fname}: fmi2StatusKind = {statusKind[s.int]}" )
 
     case s:
-        of fmi2DoStepStatus: 
+        of fmi2DoStepStatus:
             filteredLog(comp, fmi2Error, LOG_ERROR,
             fmt"{fname}: Can be called with fmi2DoStepStatus when fmi2DoStep returned fmi2Pending. This is not the case.")
 
-        of fmi2PendingStatus: 
+        of fmi2PendingStatus:
             filteredLog(comp, fmi2Error, LOG_ERROR,
             fmt"{fname}: Can be called with fmi2PendingStatus when fmi2DoStep returned fmi2Pending. This is not the case.")
 
-        of fmi2LastSuccessfulTime: 
+        of fmi2LastSuccessfulTime:
             filteredLog(comp, fmi2Error, LOG_ERROR,
             fmt"{fname}: Can be called with fmi2LastSuccessfulTime when fmi2DoStep returned fmi2Discard. This is not the case.")
-        
-        of fmi2Terminated: 
+
+        of fmi2Terminated:
             filteredLog(comp, fmi2Error, LOG_ERROR,
             fmt"{fname}: Can be called with fmi2Terminated when fmi2DoStep returned fmi2Discard. This is not the case.")
-    
+
     return fmi2Discard
 
 {.push exportc:"$1",cdecl,dynlib.}
@@ -46,7 +46,7 @@ proc fmi2GetRealStatus*(comp: ModelInstance; s: fmi2StatusKind; value: ptr fmi2R
 
         value[] = comp.time
         return fmi2OK
-    
+
     return getStatus("fmi2GetRealStatus", comp, s)
 
 proc fmi2GetIntegerStatus*(comp: ModelInstance; s: fmi2StatusKind;
@@ -63,7 +63,7 @@ proc fmi2GetBooleanStatus*(comp: ModelInstance; s: fmi2StatusKind;
 
         value[] = comp.eventInfo.terminateSimulation
         return fmi2OK
-    
+
     return getStatus("fmi2GetBooleanStatus", comp, s)
 
 

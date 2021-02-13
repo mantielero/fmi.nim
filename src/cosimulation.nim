@@ -1,20 +1,20 @@
 {.push exportc:"$1",cdecl,dynlib.}
 
-import fmi2TypesPlatform, status, modelinstance, modelstate, 
-       modelinstancetype, helpers, masks, logger
-import model
+#import fmi2TypesPlatform, status, modelinstance, modelstate,
+#       modelinstancetype, helpers, masks, logger
+#import model
 import strformat
 
 ## ---------------------------------------------------------------------------
 ## Functions for FMI for Co-Simulation
 ## ---------------------------------------------------------------------------
-# Simulating the slave 
+# Simulating the slave
 
 #proc `[]=`*[I:SomeInteger](v:ptr fmi2Real, n:I) =
 
 #define  r(vr) comp->r[vr]
 #proc r(n:int) =
-    
+
 
 proc fmi2SetRealInputDerivatives*(comp: ModelInstance; vr: ptr fmi2ValueReference;
                                  nvr: csize; order: ptr fmi2Integer;
@@ -22,7 +22,7 @@ proc fmi2SetRealInputDerivatives*(comp: ModelInstance; vr: ptr fmi2ValueReferenc
     ##var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2SetRealInputDerivatives", MASK_fmi2SetRealInputDerivatives):
         return fmi2Error
-    
+
     filteredLog(comp, fmi2OK, LOG_FMI_CALL, fmt"fmi2SetRealInputDerivatives: nvr= {nvr}")
     filteredLog(comp, fmi2Error, LOG_ERROR, fmt"fmi2SetRealInputDerivatives: ignoring function call.\nThis model cannot interpolate inputs: canInterpolateInputs='{fmi2False}'")
     return fmi2Error
@@ -42,10 +42,10 @@ proc fmi2GetRealOutputDerivatives*(comp: ModelInstance; vr: ptr fmi2ValueReferen
 
 proc fmi2CancelStep*(comp: ModelInstance):fmi2Status =
     ##var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
-    if invalidState(comp, "fmi2CancelStep", MASK_fmi2CancelStep): 
+    if invalidState(comp, "fmi2CancelStep", MASK_fmi2CancelStep):
         # always fmi2CancelStep is invalid, because model is never in modelStepInProgress state.
         return fmi2Error
-    
+
     filteredLog(comp, fmi2OK, LOG_FMI_CALL, "fmi2CancelStep")
     filteredLog(comp, fmi2Error, LOG_ERROR,fmt"fmi2CancelStep: Can be called when fmi2DoStep returned fmi2Pending.\n This is not the case.")
     # comp.state = modelStepCanceled;
@@ -66,9 +66,9 @@ proc fmi2DoStep*(comp: ModelInstance; currentCommunicationPoint: fmi2Real;
 
     if invalidState(comp, "fmi2DoStep", MASK_fmi2DoStep):
         return fmi2Error
-    
+
     var tmp:string
-    if noSetFMUStatePriorToCurrentPoint > 1: 
+    if noSetFMUStatePriorToCurrentPoint > 1:
         tmp = "True"
     else:
         tmp = "False"
@@ -79,13 +79,13 @@ proc fmi2DoStep*(comp: ModelInstance; currentCommunicationPoint: fmi2Real;
             fmt"fmi2DoStep: communication step size must be > 0. Fount {communicationStepSize}." )
         comp.state = modelError
         return fmi2Error
-    
+
 
     when NUMBER_OF_EVENT_INDICATORS > 0:
         # initialize previous event indicators with current values
-        for i in 0 ..< NUMBER_OF_EVENT_INDICATORS: 
+        for i in 0 ..< NUMBER_OF_EVENT_INDICATORS:
            prevEventIndicators[i] = getEventIndicator(comp, i)  # <-- // to be implemented by the includer of this file
-    
+
     # break the step into n steps and do forward Euler.
     comp.time = currentCommunicationPoint
     for k in 0 ..< n:
@@ -94,7 +94,7 @@ proc fmi2DoStep*(comp: ModelInstance; currentCommunicationPoint: fmi2Real;
     when NUMBER_OF_STATES > 0:
         for i in 0 ..< NUMBER_OF_STATES:
             prevState[i] = comp.r[vrStates[i]]
-        
+
         for i in 0 ..< NUMBER_OF_STATES:
             var vr:fmi2ValueReference = vrStates[i]
             comp.r[vr] += h * getReal(comp, vr + 1)  # forward Euler step
@@ -113,28 +113,28 @@ proc fmi2DoStep*(comp: ModelInstance; currentCommunicationPoint: fmi2Real;
                 filteredLog(comp, fmi2OK, LOG_EVENT,
                     fmt"fmi2DoStep: state event at {comp.time}, z{i} crosses zero -{tmp}-")
                 inc stateEvent # stateEvent++
-            
+
             prevEventIndicators[i] = ei
-        
+
 
         # check for time event
         if (comp.eventInfo.nextEventTimeDefined > 0 and (comp.time - comp.eventInfo.nextEventTime > -DT_EVENT_DETECT)):
             filteredLog(comp, fmi2OK, LOG_EVENT, fmt"fmi2DoStep: time event detected at {comp.time}" )
             timeEvent = 1
-        
+
 
         if (stateEvent > 0 or timeEvent > 0):
             eventUpdate(comp, addr( comp.eventInfo ), timeEvent, fmi2True)
             timeEvent = 0
             stateEvent = 0
-        
+
 
         # terminate simulation, if requested by the model in the previous step
         if (comp.eventInfo.terminateSimulation) > 0:
             filteredLog(comp, fmi2Discard, LOG_ALL, fmt"fmi2DoStep: model requested termination at t={comp.time}")
             comp.state = modelStepFailed
             return fmi2Discard # enforce termination of the simulation loop
-    
+
     return fmi2OK
 
 {.pop.}

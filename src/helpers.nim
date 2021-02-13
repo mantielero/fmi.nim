@@ -1,19 +1,19 @@
 ## ---------------------------------------------------------------------------
 ## Private helpers used below to validate function arguments
 ## ---------------------------------------------------------------------------
-import modelinstancetype, modelstate, logger, status, fmi2TypesPlatform, fmi2callbackfunctions
+#import modelinstancetype, modelstate, logger, status, fmi2TypesPlatform, fmi2callbackfunctions
 import strformat
 
 proc invalidNumber*( comp:ModelInstance, f:cstring, arg:cstring,
-                     n:cint, nExpected:cint):bool  = 
+                     n:cint, nExpected:cint):bool  =
     if n != nExpected:
         comp.state = modelError
         filteredLog(comp, fmi2Error, LOG_ERROR, fmt"{f}: Invalid argument {arg} = {n}. Expected {nExpected}.")
         return true
     return false
 
-proc invalidState*( comp:ModelInstance, f:cstring, 
-                    statesExpected:ModelState):bool  = 
+proc invalidState*( comp:ModelInstance, f:cstring,
+                    statesExpected:ModelState):bool  =
     if comp.isNil:
         return true
     #echo "invalidState: ", repr comp
@@ -22,7 +22,7 @@ proc invalidState*( comp:ModelInstance, f:cstring,
         #echo $f
         filteredLog(comp, fmi2Error, LOG_ERROR, fmt"{$f}: Illegal call sequence." )
         return true
-    
+
     return false
 
 proc nullPointer*(comp:ModelInstance, f:cstring, arg:cstring, p:pointer):bool =
@@ -30,7 +30,7 @@ proc nullPointer*(comp:ModelInstance, f:cstring, arg:cstring, p:pointer):bool =
         comp.state = modelError
         filteredLog(comp, fmi2Error, LOG_ERROR, fmt"{f}: Invalid argument {arg} = NULL.")
         return true
-    
+
     return false
 
 proc vrOutOfRange*(comp:ModelInstance, f:cstring,  vr:fmi2ValueReference, `end`:cint):bool =
@@ -38,7 +38,7 @@ proc vrOutOfRange*(comp:ModelInstance, f:cstring,  vr:fmi2ValueReference, `end`:
         filteredLog(comp, fmi2Error, LOG_ERROR, fmt"{f}: Illegal value reference {vr}.")
         comp.state = modelError
         return true
-    
+
     return false
 
 proc unsupportedFunction*(comp:ModelInstance; fName: cstring; statesExpected: ModelState): fmi2Status =
@@ -49,6 +49,3 @@ proc unsupportedFunction*(comp:ModelInstance; fName: cstring; statesExpected: Mo
     filteredLog(comp, fmi2OK, LOG_FMI_CALL, fName)
     filteredLog(comp, fmi2Error, LOG_ERROR, fmt"{fName}: Function not implemented.")
     return fmi2Error
-
-
-

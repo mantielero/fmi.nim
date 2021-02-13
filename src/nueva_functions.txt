@@ -42,14 +42,6 @@ fmi2NewDiscreteStates
 fmi2SetTime
 fmi2GetDirectionalDerivative
 fmi2GetInteger
-@mfmi2TypesPlatform.nim.c
-@mfmi2type.nim.c
-@mfmi2callbackfunctions.nim.c
-@mfmi2eventinfo.nim.c
-unknown_fmi2eventinfoDatInit000
-unknown_fmi2callbackfunctionsDatInit000
-unknown_fmi2typeDatInit000
-unknown_fmi2TypesPlatformDatInit000
 fmi2EnterEventMode
 fmi2EnterContinuousTimeMode
 fmi2GetString
