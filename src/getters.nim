@@ -25,7 +25,7 @@ proc fmi2GetReal*(comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize_t;
 
     #---- Only compiled if NUMBER_OF_REALS is >0
 
-    when NUMBER_OF_REALS > 0:
+    when nReals > 0:
     #if NUMBER_OF_REALS > 0:
         for i in 0 ..< nvr:
             if vrOutOfRange(comp, "fmi2GetReal", vr[i], NUMBER_OF_REALS):
@@ -53,7 +53,7 @@ proc fmi2GetInteger*(comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize
         comp.isDirtyValues = fmi2False
 
     for i in 0 ..< nvr:
-        if vrOutOfRange(comp, "fmi2GetInteger", vr[i], NUMBER_OF_INTEGERS):
+        if vrOutOfRange(comp, "fmi2GetInteger", vr[i], nIntegers):
             return fmi2Error
 
         value[i] = comp.i[vr[i]]
@@ -75,7 +75,7 @@ proc fmi2GetBoolean*(comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize
         comp.isDirtyValues = fmi2False
 
     for i in 0 ..< nvr:
-        if vrOutOfRange(comp, "fmi2GetBoolean", vr[i], NUMBER_OF_BOOLEANS):
+        if vrOutOfRange(comp, "fmi2GetBoolean", vr[i], nBooleans):
             return fmi2Error
         value[i] = comp.b[vr[i]]
         var tmp:string
@@ -104,7 +104,7 @@ proc fmi2GetString*(comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize_
     var s = cast[ptr UncheckedArray[fmi2String]](comp.s)
     var val = cast[ptr UncheckedArray[ptr fmi2String]](value)
     for i in 0 ..< nvr:
-        if vrOutOfRange(comp, "fmi2GetString", vr[i], NUMBER_OF_STRINGS):
+        if vrOutOfRange(comp, "fmi2GetString", vr[i], nStrings):
             return fmi2Error
 
         # WARNING: to be tested the following

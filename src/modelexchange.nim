@@ -92,11 +92,11 @@ proc fmi2SetContinuousStates*(comp: ModelInstance; x: ptr fmi2Real; nx: csize_t)
     #var i:int
     if invalidState(comp, "fmi2SetContinuousStates", MASK_fmi2SetContinuousStates):
         return fmi2Error
-    if invalidNumber(comp, "fmi2SetContinuousStates", "nx", nx.cint, NUMBER_OF_STATES):
+    if invalidNumber(comp, "fmi2SetContinuousStates", "nx", nx.cint, nStates):
         return fmi2Error
     if nullPointer(comp, "fmi2SetContinuousStates", "x[]", x):
         return fmi2Error
-    when NUMBER_OF_STATES > 0:
+    when nStates > 0:
         for i in 0 ..< nx:
             var vr: fmi2ValueReference = vrStates[i]
             filteredLog(comp, fmi2OK, LOG_FMI_CALL, "fmi2SetContinuousStates: #r{vr}#={x[i]}")
@@ -111,11 +111,11 @@ proc fmi2GetDerivatives*(comp: ModelInstance; derivatives: ptr fmi2Real; nx: csi
     #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2GetDerivatives", MASK_fmi2GetDerivatives):
         return fmi2Error
-    if invalidNumber(comp, "fmi2GetDerivatives", "nx", nx.cint, NUMBER_OF_STATES):
+    if invalidNumber(comp, "fmi2GetDerivatives", "nx", nx.cint, nStates):
         return fmi2Error
     if nullPointer(comp, "fmi2GetDerivatives", "derivatives[]", derivatives):
         return fmi2Error
-    when NUMBER_OF_STATES > 0:
+    when nStates > 0:
         for i in 0 ..< nx:
             var vr: fmi2ValueReference = vrStates[i] + 1
             derivatives[i] = getReal(comp, vr)  # to be implemented by the includer of this file
@@ -130,9 +130,9 @@ proc fmi2GetEventIndicators*(comp: ModelInstance; eventIndicators: ptr fmi2Real;
     #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2GetEventIndicators", MASK_fmi2GetEventIndicators):
         return fmi2Error
-    if invalidNumber(comp, "fmi2GetEventIndicators", "ni", ni.cint, NUMBER_OF_EVENT_INDICATORS):
+    if invalidNumber(comp, "fmi2GetEventIndicators", "ni", ni.cint, nEventIndicators):
         return fmi2Error
-    when NUMBER_OF_EVENT_INDICATORS > 0:
+    when nEventIndicators > 0:
         for i in 0 ..< ni:
             eventIndicators[i] = getEventIndicator(comp, i) # to be implemented by the includer of this file
             filteredLog(comp, fmi2OK, LOG_FMI_CALL, "fmi2GetEventIndicators: z{i} = {eventIndicators[i]}")
@@ -145,11 +145,11 @@ proc fmi2GetContinuousStates*(comp: ModelInstance; states: ptr fmi2Real; nx: csi
     #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2GetContinuousStates", MASK_fmi2GetContinuousStates):
         return fmi2Error
-    if invalidNumber(comp, "fmi2GetContinuousStates", "nx", nx.cint, NUMBER_OF_STATES):
+    if invalidNumber(comp, "fmi2GetContinuousStates", "nx", nx.cint, nStates):
         return fmi2Error
     if nullPointer(comp, "fmi2GetContinuousStates", "states[]", states):
         return fmi2Error
-    when NUMBER_OF_STATES > 0:
+    when nStates > 0:
         for i in 0 ..< nx:
             var vr:fmi2ValueReference = vrStates[i]
             states[i] = getReal(comp, vr) # to be implemented by the includer of this file
@@ -164,7 +164,7 @@ proc fmi2GetNominalsOfContinuousStates*(comp: ModelInstance; x_nominal: ptr fmi2
     #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2GetNominalsOfContinuousStates", MASK_fmi2GetNominalsOfContinuousStates):
         return fmi2Error
-    if invalidNumber(comp, "fmi2GetNominalContinuousStates", "nx", nx.cint, NUMBER_OF_STATES):
+    if invalidNumber(comp, "fmi2GetNominalContinuousStates", "nx", nx.cint, nStates):
         return fmi2Error
     if nullPointer(comp, "fmi2GetNominalContinuousStates", "x_nominal[]", x_nominal):
         return fmi2Error

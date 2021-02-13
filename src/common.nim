@@ -12,10 +12,10 @@ proc fmi2SetupExperiment*(comp: ModelInstance; toleranceDefined: fmi2Boolean;
 
     # ignore arguments: stopTimeDefined, stopTime
 
-    echo "ENTERING: fmi2SetupExpetiment"
+    #echo "ENTERING: fmi2SetupExpetiment"
     #echo repr c
     #var comp = cast[ref ModelInstance](c)
-    echo comp.GUID
+    #echo comp.GUID
 
     if invalidState(comp, "fmi2SetupExperiment", MASK_fmi2SetupExperiment):
     #if invalidState(cast[ptr ModelInstance](c), "fmi2SetupExperiment", MASK_fmi2SetupExperiment):

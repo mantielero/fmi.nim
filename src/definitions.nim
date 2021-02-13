@@ -7,12 +7,12 @@ const
   LOG_ERROR* = 1
   LOG_FMI_CALL* = 2
   LOG_EVENT* = 3
-  NUMBER_OF_CATEGORIES* = 4   # Number of logging categorias
+  nCategories* = 4   # Number of logging categorias
 
   DT_EVENT_DETECT* = 1e-10  # It could be modified
 
 type
-  ModelState* {.inject.} = enum
+  ModelState*  = enum
     modelStartAndEnd        = (1 shl 0),  ##  ME state
     modelInstantiated       = (1 shl 1),  ##  ME states
     modelInitializationMode = (1 shl 2),  ##  ME states
@@ -77,9 +77,7 @@ type
   fmi2String* {.exportc:"$1".}= cstring #ptr fmi2Char
   fmi2Byte* {.exportc:"$1".} = char
 
-proc `$`(a:fmi2String): string =
-  #var b:josemaria = true
-  #echo(b)
+proc `$`(a:fmi2String): string =  
   $(a.cstring)
 
 
@@ -209,7 +207,7 @@ type
   fmi2StepFinished*  = proc(a1: fmi2ComponentEnvironment, a2: fmi2Status) #{.cdecl.}
 
 
-  fmi2CallbackFunctions*  = object #{.impfmuTemplate, bycopy.} = object
+  fmi2CallbackFunctions*  = ref object #{.impfmuTemplate, bycopy.} = object
     logger*: fmi2CallbackLogger
     allocateMemory*: fmi2CallbackAllocateMemory
     freeMemory*: fmi2CallbackFreeMemory

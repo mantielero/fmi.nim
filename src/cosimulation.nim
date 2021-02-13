@@ -17,7 +17,7 @@ import strformat
 
 
 proc fmi2SetRealInputDerivatives*(comp: ModelInstance; vr: ptr fmi2ValueReference;
-                                 nvr: csize; order: ptr fmi2Integer;
+                                 nvr: csize_t; order: ptr fmi2Integer;
                                  value: ptr fmi2Real): fmi2Status =
     ##var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2SetRealInputDerivatives", MASK_fmi2SetRealInputDerivatives):
@@ -28,7 +28,7 @@ proc fmi2SetRealInputDerivatives*(comp: ModelInstance; vr: ptr fmi2ValueReferenc
     return fmi2Error
 
 proc fmi2GetRealOutputDerivatives*(comp: ModelInstance; vr: ptr fmi2ValueReference;
-                                  nvr: csize; order: ptr fmi2Integer;
+                                  nvr: csize_t; order: ptr fmi2Integer;
                                   value: ptr fmi2Real): fmi2Status =
     ##var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2GetRealOutputDerivatives", MASK_fmi2GetRealOutputDerivatives):
@@ -59,8 +59,8 @@ proc fmi2DoStep*(comp: ModelInstance; currentCommunicationPoint: fmi2Real;
     var h:cdouble  = communicationStepSize / 10
     #var k,i:int
     var n = 10 # how many Euler steps to perform for one do step
-    var prevState: array[max(NUMBER_OF_STATES, 1), cdouble]
-    var prevEventIndicators: array[max(NUMBER_OF_EVENT_INDICATORS, 1), cdouble]
+    var prevState: array[max(nStates, 1), cdouble]
+    var prevEventIndicators: array[max(nEventIndicators, 1), cdouble]
     var stateEvent:int = 0
     var timeEvent:int = 0
 
@@ -81,9 +81,9 @@ proc fmi2DoStep*(comp: ModelInstance; currentCommunicationPoint: fmi2Real;
         return fmi2Error
 
 
-    when NUMBER_OF_EVENT_INDICATORS > 0:
+    when nEventIndicators > 0:
         # initialize previous event indicators with current values
-        for i in 0 ..< NUMBER_OF_EVENT_INDICATORS:
+        for i in 0 ..< nEventIndicators:
            prevEventIndicators[i] = getEventIndicator(comp, i)  # <-- // to be implemented by the includer of this file
 
     # break the step into n steps and do forward Euler.
@@ -91,17 +91,17 @@ proc fmi2DoStep*(comp: ModelInstance; currentCommunicationPoint: fmi2Real;
     for k in 0 ..< n:
         comp.time += h
 
-    when NUMBER_OF_STATES > 0:
-        for i in 0 ..< NUMBER_OF_STATES:
+    when nStates > 0:
+        for i in 0 ..< nStates:
             prevState[i] = comp.r[vrStates[i]]
 
         for i in 0 ..< NUMBER_OF_STATES:
             var vr:fmi2ValueReference = vrStates[i]
             comp.r[vr] += h * getReal(comp, vr + 1)  # forward Euler step
 
-    when NUMBER_OF_EVENT_INDICATORS > 0:
+    when nEventIndicators > 0:
         # check for state event
-        for i in 0 ..< NUMBER_OF_EVENT_INDICATORS:
+        for i in 0 ..< nEventIndicators:
             var ei:double = getEventIndicator(comp, i)
             var ei:float = 0.0  # <---- borrame
             if ei * prevEventIndicators[i] < 0 :

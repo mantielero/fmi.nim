@@ -6,7 +6,7 @@ import strformat
 
 proc fmi2SetReal*(comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize_t;
                  value: ptr fmi2Real): fmi2Status {.exportc:"$1".} =
-    var i:int
+    #var i:int
     #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2SetReal", MASK_fmi2SetReal):
         return fmi2Error
@@ -17,7 +17,7 @@ proc fmi2SetReal*(comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize_t;
     filteredLog(comp, fmi2OK, LOG_FMI_CALL, fmt"fmi2SetReal: nvr = {nvr}" )
     # no check whether setting the value is allowed in the current state
     for i in 0 ..< nvr:
-        if vrOutOfRange(comp, "fmi2SetReal", vr[i], NUMBER_OF_REALS):
+        if vrOutOfRange(comp, "fmi2SetReal", vr[i], nReals):
             return fmi2Error
         filteredLog(comp, fmi2OK, LOG_FMI_CALL, fmt"fmi2SetReal: #r{vr[i]}# = {value[i]}")
         comp.r[vr[i]] = value[i]
@@ -29,7 +29,7 @@ proc fmi2SetReal*(comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize_t;
 
 proc fmi2SetInteger*( comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize_t;
                       value: ptr fmi2Integer): fmi2Status {.exportc:"$1".} =
-    var i:int
+    #var i:int
     #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2SetInteger", MASK_fmi2SetInteger):
         return fmi2Error
@@ -40,7 +40,7 @@ proc fmi2SetInteger*( comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csiz
     filteredLog(comp, fmi2OK, LOG_FMI_CALL, fmt"fmi2SetInteger: nvr = {nvr}")
 
     for i in 0 ..< nvr:
-        if vrOutOfRange(comp, "fmi2SetInteger", vr[i], NUMBER_OF_INTEGERS):
+        if vrOutOfRange(comp, "fmi2SetInteger", vr[i], nIntegers):
             return fmi2Error
         filteredLog(comp, fmi2OK, LOG_FMI_CALL, fmt"fmi2SetInteger: #i{vr[i]}# = {value[i]}" )
         comp.i[vr[i]] = value[i]
@@ -52,7 +52,7 @@ proc fmi2SetInteger*( comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csiz
 
 proc fmi2SetBoolean*(comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize_t;
                     value: ptr fmi2Boolean): fmi2Status {.exportc:"$1".} =
-    var i:int
+    #var i:int
     #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2SetBoolean", MASK_fmi2SetBoolean):
         return fmi2Error
@@ -63,7 +63,7 @@ proc fmi2SetBoolean*(comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize
     filteredLog(comp, fmi2OK, LOG_FMI_CALL, fmt"fmi2SetBoolean: nvr = {nvr}")
 
     for i in 0 ..< nvr:
-        if vrOutOfRange(comp, "fmi2SetBoolean", vr[i], NUMBER_OF_BOOLEANS):
+        if vrOutOfRange(comp, "fmi2SetBoolean", vr[i], nBooleans):
             return fmi2Error
 
         var tmp:string

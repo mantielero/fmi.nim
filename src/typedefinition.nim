@@ -27,7 +27,7 @@ macro genModelInstance*( numberOfReals, numberOfIntegers,
             instanceName*: fmi2String
             `mytype`: fmi2Type
             GUID*: fmi2String
-            functions*: ptr fmi2CallbackFunctions  # <-----
+            functions*: fmi2CallbackFunctions  #ptr fmi2CallbackFunctions  # <-----
             loggingOn*: fmi2Boolean
             logCategories*: array[`nCat`, fmi2Boolean]
             componentEnvironment*: fmi2ComponentEnvironment

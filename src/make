@@ -1,5 +1,9 @@
-#nim c --deadcodeElim:off   --nimcache:.cache --app:lib -o:inc.so model.nim
+#nim c --deadcodeElim:off --nimcache:.cache --app:lib -o:inc.so model.nim
 nim c --deadcodeElim:off  --gc:arc --nimcache:.cache --app:lib -o:inc.so model.nim
+#nim c --deadcodeElim:off  -d:useMalloc --gc:arc --nimcache:.cache --app:lib -o:inc.so model.nim
+#nim c --deadcodeElim:off  --gc:orc --nimcache:.cache --app:lib -o:inc.so model.nim
+#valgrind --tool=memcheck --leak-check=full fmusdk-master/fmu20/bin/fmusim_me prueba.fmu 10 0.1
+
 cp inc.so fmusdk-master/fmu20/src/models/inc/fmu/binaries/linux64/
 ./genfmu
 fmusdk-master/fmu20/bin/fmusim_me prueba.fmu 10 0.1

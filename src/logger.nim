@@ -5,7 +5,7 @@
 
 proc isCategoryLogged*[I:SomeInteger](comp:ModelInstance, categoryIndex:I):bool  =
     ## return fmi2True if logging category is on. Else return fmi2False.
-    if categoryIndex < NUMBER_OF_CATEGORIES and ((comp.logCategories[categoryIndex.int] > 0) or (comp.logCategories[LOG_ALL] > 0)):
+    if categoryIndex < nCategories and ((comp.logCategories[categoryIndex.int] > 0) or (comp.logCategories[LOG_ALL] > 0)):
         return true
     return false
 

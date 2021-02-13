@@ -43,7 +43,7 @@ proc vrOutOfRange*(comp:ModelInstance, f:cstring,  vr:fmi2ValueReference, `end`:
 
 proc unsupportedFunction*(comp:ModelInstance; fName: cstring; statesExpected: ModelState): fmi2Status =
     #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
-    var log:fmi2CallbackLogger = comp.functions.logger
+    #var log:fmi2CallbackLogger = comp.functions.logger
     if invalidState(comp, fName, statesExpected):
         return fmi2Error
     filteredLog(comp, fmi2OK, LOG_FMI_CALL, fName)

@@ -14,9 +14,9 @@ import strformat
 {.push exportc: "$1",dynlib,cdecl.}
 
 proc fmi2Instantiate*( instanceName: fmi2String, fmuType: fmi2Type,
-                      fmuGUID: fmi2String, fmuResourceLocation: fmi2String,
-                      functions: ptr fmi2CallbackFunctions, visible: fmi2Boolean,
-                      loggingOn: fmi2Boolean): ModelInstance = #fmi2Component =
+                       fmuGUID: fmi2String, fmuResourceLocation: fmi2String,
+                       functions: fmi2CallbackFunctions, visible: fmi2Boolean,
+                       loggingOn: fmi2Boolean): ModelInstance = #fmi2Component =
     ##[ ignoring arguments: fmuResourceLocation, visible
     (pag.19)
     The function returns a new instance of an FMU or a null pointer when failed.
@@ -76,8 +76,9 @@ proc fmi2Instantiate*( instanceName: fmi2String, fmuType: fmi2Type,
     #var comp = ptr ModelInstance
     #var comp:ptr ModelInstance
     #echo repr functions
-    let f = cast[fmi2CallbackFunctions](functions)
-
+    #GC_fullcollect()
+    #let f = cast[fmi2CallbackFunctions](functions)   # let f = functions[]   #
+    let f = functions
     # Case: we don't even have a logger
     #[
     if f.logger.isNil:
@@ -163,10 +164,10 @@ proc fmi2Instantiate*( instanceName: fmi2String, fmuType: fmi2Type,
     comp.eventInfo.valuesOfContinuousStatesChanged = fmi2False
     comp.eventInfo.nextEventTimeDefined = fmi2False
     comp.eventInfo.nextEventTime = 0
-    echo "GUID: ", comp.GUID
-    echo "Instance Name: ", comp.instanceName
+    #echo "GUID: ", comp.GUID
+    #echo "Instance Name: ", comp.instanceName
     filteredLog( comp, fmi2OK, LOG_FMI_CALL, fmt"fmi2Instantiate: GUID={fmuGUID}")
-    echo "Initiated!!"
+    #echo "Initiated!!"
     #echo "GUID: ", comp.GUID
     #echo "Instance Name: ", comp.instanceName
     #echo comp.instanceName
@@ -226,7 +227,7 @@ proc fmi2FreeInstance(comp:ModelInstance) =
        comp.functions.freeMemory( comp.GUID )
     ]#
     #comp.functions.freeMemory(unsafeAddr(comp))
-    discard
+    GC_fullcollect()
 
 proc fmi2SetDebugLogging*( comp:ModelInstance, loggingOn: fmi2Boolean,
                            nCategories: csize_t, categories: pointer):fmi2Status =  #categories: ptr fmi2String
@@ -250,20 +251,22 @@ proc fmi2SetDebugLogging*( comp:ModelInstance, loggingOn: fmi2Boolean,
     filteredLog(comp, fmi2OK, LOG_FMI_CALL, "fmi2SetDebugLogging")
 
     # reset all categories
-    for j in 0 ..< NUMBER_OF_CATEGORIES:
+    for j in 0 ..< nCategories:
         comp.logCategories[j] = fmi2False
 
     if nCategories == 0:
         # no category specified, set all categories to have loggingOn value
-        for j in 0 ..< NUMBER_OF_CATEGORIES:
+        for j in 0 ..< nCategories:
             comp.logCategories[j] = loggingOn
 
     else:
         # set specific categories on
         for i in 0 ..< nCategories:
+            discard
+
+            #[ TODO
             var categoryFound: fmi2Boolean  = fmi2False
-            #[
-            for j in 0 ..< NUMBER_OF_CATEGORIES:
+            for j in 0 ..< nCategories:
                 if not (logCategoriesNames[j] == categories[i]):
                     comp.logCategories[j] = loggingOn
                     categoryFound = fmi2True
