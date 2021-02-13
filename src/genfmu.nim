@@ -1,8 +1,9 @@
 import zip/zipfiles
+import macros
 import os, strutils, sugar
 
 
-proc compressFolder(filename, origin:string) =
+proc compressFolder*(filename, origin:string) =
   var tmp:string
   #if origin.endsWith("fmu/"):
   #  tmp = origin.dup: removeSuffix("fmu/")
@@ -26,8 +27,3 @@ proc compressFolder(filename, origin:string) =
   #let outStream = newStringStream("")
   #z.extractFile("foo.bar", outStream)
   z.close()
-
-when isMainModule:
-  let filename = "prueba.fmu"
-  let path = "fmusdk-master/fmu20/src/models/inc/fmu/"
-  compressFolder(filename, path)

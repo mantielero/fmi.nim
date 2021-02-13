@@ -168,7 +168,7 @@ proc fmi2Instantiate*( instanceName: fmi2String, fmuType: fmi2Type,
     #echo "Instance Name: ", comp.instanceName
     filteredLog( comp, fmi2OK, LOG_FMI_CALL, fmt"fmi2Instantiate: GUID={fmuGUID}")
     #echo "Initiated!!"
-    #echo "GUID: ", comp.GUID
+    echo "GUID: ", comp.GUID
     #echo "Instance Name: ", comp.instanceName
     #echo comp.instanceName
     #echo repr comp.i

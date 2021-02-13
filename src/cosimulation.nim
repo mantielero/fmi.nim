@@ -55,9 +55,11 @@ proc fmi2CancelStep*(comp: ModelInstance):fmi2Status =
 proc fmi2DoStep*(comp: ModelInstance; currentCommunicationPoint: fmi2Real;
                 communicationStepSize: fmi2Real;
                 noSetFMUStatePriorToCurrentPoint: fmi2Boolean): fmi2Status =
-    ##var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+    ##[
+
+    ]##
     var h:cdouble  = communicationStepSize / 10
-    #var k,i:int
+
     var n = 10 # how many Euler steps to perform for one do step
     var prevState: array[max(nStates, 1), cdouble]
     var prevEventIndicators: array[max(nEventIndicators, 1), cdouble]

@@ -74,11 +74,12 @@ type
   fmi2Integer* {.exportc:"$1".} = int32  # int
   fmi2Boolean* {.exportc:"$1".} = int32 #{.dynlib.}
   fmi2Char* {.exportc:"$1".} = char
-  fmi2String* {.exportc:"$1".}= cstring #ptr fmi2Char
+  fmi2String* {.exportc:"$1".}= distinct cstring #ptr fmi2Char
   fmi2Byte* {.exportc:"$1".} = char
 
-proc `$`(a:fmi2String): string =  
-  $(a.cstring)
+proc `$`(a:fmi2String): string {.borrow.}   # https://forum.nim-lang.org/t/7502
+  #$(a.cstring)
+  #a
 
 
 
