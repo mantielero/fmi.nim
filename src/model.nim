@@ -38,10 +38,24 @@ param "k":
   initial: "exact"
 ]#
 
+#[
+<ScalarVariable
+        name="counter"
+   valueReference="0"
+        description="counts the seconds"
+        causality="output"
+        variability="discrete"
+        initial="exact">
+      <Integer start="1"/>
+</ScalarVariable>
+]#
+
 #fmu("inc", "{8c4e810f-3df3-4a00-8276-176fa3c9f008}"):
 fmu( "inc", "{8c4e810f-3df3-4a00-8276-176fa3c9f008}"):
-  #var contador:int
-  #register(contador)
+  var contador:int = 1
+  register(contador, cOutput, vDiscrete, iExact, "counts the seconds" )
+
+  echo repr(paramsI)
   const
     counter* = 0  # Es el identificador dentro del array
 
@@ -75,40 +89,4 @@ fmu( "inc", "{8c4e810f-3df3-4a00-8276-176fa3c9f008}"):
   #awk '{print $8}' nueva.txt > nueva_functions.txt
   #rm -r fmuTmp*
 
-when not compileOption("app", "lib"):
-  import system, osproc, os, strformat, strutils, genfmu
-
-  #let filename = "prueba.fmu"
-  #let path = "fmusdk-master/fmu20/src/models/inc/fmu/"
-  #compressFolder(filename, path)
-  #[
-  let n = paramCount()
-  if not n == 1:
-    #raise newException(ValueError, "the request to the OS failed")
-    echo "Only one argument accepted"
-    quit(QuitFailure)
-  let nimFile = paramStr(1)
-  if ext.toLower != ".nim":
-    echo "The extension should be .nim, but got: ", ext
-    quit(QuitFailure)
-  echo "[INFO] Processing: ", nimFile
-  ]#
-  let (_,name, ext) = getAppFilename().splitFile
-  let nimFile = name & ".nim"
-
-  # Create the library
-
-  # Compilation
-  let libName = fmt"{modelId}.so"
-  # --nimcache:.cache
-  doAssert execCmdEx( fmt"nim c --deadcodeElim:off  --gc:arc --app:lib -o:{libName} {nimFile}" ).exitCode == QuitSuccess
-
-  # Move the library to the right folder
-  let path = "fmusdk-master/fmu20/src/models/inc/fmu/"
-  copyFile( libName, path / "binaries/linux64" / libName )
-
-
-  let fmuName = fmt"{modelId}.fmu"
-  compressFolder( fmuName, path )
-  echo "CREATED: ", fmuName
-  quit(QuitSuccess)
+#template param()

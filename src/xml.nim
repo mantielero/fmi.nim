@@ -42,7 +42,7 @@
 import xmltree
 import strformat
 
-proc createXml(modelName, guid: string, numberOfEventIndicators:int) =
+proc createXml*(modelName, guid: string, numberOfEventIndicators:int):string =
   #var fmiModelDescription = newElement("fmiModelDescription")
   #fmiModelDescription.add newText("some text")
   #fmiModelDescription.add newComment("this is comment")
@@ -64,22 +64,22 @@ proc createXml(modelName, guid: string, numberOfEventIndicators:int) =
   var catChildren:seq[XmlNode] = @[]
   for category in categories:
     var cat = newElement("Category")
-    cat.attrs  = {"name" : fmt"{category}"}.toXmlAttributes    
+    cat.attrs  = {"name" : fmt"{category}"}.toXmlAttributes
     catChildren.add(cat)
-  let logCategories = newXmlTree("LogCategories", catChildren)  
+  let logCategories = newXmlTree("LogCategories", catChildren)
 
 
 
   #var scalarVariable = newElement("ScalarVariable")
   let scalarVariableAttrs = { "name" : "counter",
-                           "valueReference" : "0",
-                           "description" : "counts the seconds",
-                           "causality" : "output",
-                           "variability" : "discrete",
-                           "initial" : "exact" }.toXmlAttributes
+                              "valueReference" : "0",
+                              "description" : "counts the seconds",
+                              "causality" : "output",
+                              "variability" : "discrete",
+                              "initial" : "exact" }.toXmlAttributes
   let initial = newElement("Integer")
   initial.attrs = { "start" : "1"}.toXmlAttributes
-  let scalarVariable = newXmlTree("ScalarVariable", [initial], scalarVariableAttrs)  
+  let scalarVariable = newXmlTree("ScalarVariable", [initial], scalarVariableAttrs)
 
   var modelVariables = newElement("ModelVariables")
   modelVariables.add scalarVariable
@@ -91,12 +91,12 @@ proc createXml(modelName, guid: string, numberOfEventIndicators:int) =
   outputs.add unknown
   modelStructure.add outputs
 
-  let att = { "fmiVersion": "2.0", 
+  let att = { "fmiVersion": "2.0",
               "modelName": fmt"{modelName}",
               "guid": fmt"{guid}",
               "numberOfEventIndicators" : fmt"{numberOfEventIndicators}"}.toXmlAttributes
   let k = newXmlTree("fmiModelDescription", [modelExchange, logCategories, modelVariables, modelStructure], att)
-  echo xmlHeader & $k
+  result = xmlHeader & $k
 
 when isMainModule:
-  createXml("inc", "{8c4e810f-3df3-4a00-8276-176fa3c9f008}", 0)
+  echo createXml("inc", "{8c4e810f-3df3-4a00-8276-176fa3c9f008}", 0)
