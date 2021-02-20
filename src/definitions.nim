@@ -302,10 +302,10 @@ New in FMI 2.0.2: It is discouraged to use the memory callback functions.]
 
 
 
-var paramsI:Params
-var paramsR:Params
-var paramsB:Params
-var paramsS:Params
+var paramsI*:Params
+var paramsR*:Params
+var paramsB*:Params
+var paramsS*:Params
 
 template register*( val: untyped,
                     caus:Causality,
@@ -324,27 +324,22 @@ template register*( val: untyped,
   #let n = case typ:
   #        of  tInt: paramsI.len
   #        of  tFloat:
-  let initVal = $val
-  var tmp = Param( name: val.astToStr,
-                   typ: typ,
-                   idx: n,
-                   causality:caus,
-                   variability:varia,
-                   initial:ini,
-                   description:desc,
-                   initVal: initVal ) #fmt"{typ}"   )
+  #let initVal = $val
+
   if typ == tInt:
+    var tmp = Param( name: val.astToStr,
+                    typ: typ,
+                    idx: n,
+                    causality:caus,
+                    variability:varia,
+                    initial:ini,
+                    description:desc,
+                    initValI: val,
+                    addrI: addr(val) ) #fmt"{typ}"   )   
+    #comp.r[n] = val
     paramsI.add(tmp)
   # Want to print 'name' here, not its value like with backticks
 
   #[
-  proc setStartValues*( comp: ModelInstance)  =
-      #var c = cast[ModelInstance](comp)
-      #echo repr c.GUID.string
-      when typ == tInt:
-        comp.i[n] = val.fmi2Integer  # Asigna al primer valor entero el valor "1"
-      when typ == tFloat:
-        tFloat: comp.r[n]  = val.fmi2Real
-      #of tBool: comp.b[n]   = val.fmi2Boolean
-      #of tString: comp.s[n] = val.cstring.fmi2String
+
   ]#

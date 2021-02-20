@@ -19,7 +19,7 @@ macro genModelInstance*( numberOfReals, numberOfIntegers,
       type
         `modelInstance` = ref object
             r*:          array[`numberOfReals`, fmi2Real]
-            i*:          array[`numberOfIntegers`, fmi2Integer]
+            i*:          array[`numberOfIntegers`, ptr int] #fmi2Integer]
             b*:          array[`numberOfBooleans`, fmi2Boolean]
             s*:          array[`numberOfStrings`, fmi2String]
             isPositive*: array[`numberOfEventIndicators`, fmi2Boolean]

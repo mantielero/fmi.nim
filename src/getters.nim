@@ -56,7 +56,7 @@ proc fmi2GetInteger*(comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize
         if vrOutOfRange(comp, "fmi2GetInteger", vr[i], nIntegers):
             return fmi2Error
 
-        value[i] = comp.i[vr[i]]
+        value[i] = comp.i[vr[i]][].fmi2Integer
         filteredLog(comp, fmi2OK, LOG_FMI_CALL, fmt"fmi2GetInteger: #i{vr[i]}# = {value[i]}" )
 
     return fmi2OK

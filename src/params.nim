@@ -113,5 +113,7 @@ type
     variability*: Variability
     initial*: Initial
     description*: string
-    initVal*: string
+    initValI*: int
+    addrI*: ptr int
+  
   Params* = seq[Param]

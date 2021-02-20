@@ -80,7 +80,7 @@ proc scalarVariable(p:Param):XmlNode =
                 of tFloat:  newElement("Real")
                 of tBool:   newElement("Boolean")
                 of tString: newElement("String")
-  initial.attrs = { "start" : p.initVal}.toXmlAttributes
+  initial.attrs = { "start" : fmt"{p.initValI}"}.toXmlAttributes
 
   let scalarVariable = newXmlTree("ScalarVariable", [initial], scalarVariableAttrs)
 

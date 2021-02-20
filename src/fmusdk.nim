@@ -26,7 +26,7 @@ template fmu*(id, guid:string, body: untyped): untyped {.dirty.} =
   type
     ModelInstance* = ref object
         r*:          array[nReals, fmi2Real]
-        i*:          array[nIntegers, fmi2Integer]
+        i*:          array[nIntegers, ptr int] #fmi2Integer]
         b*:          array[nBooleans, fmi2Boolean]
         s*:          array[nStrings, fmi2String]
         isPositive*: array[nEventIndicators, fmi2Boolean]
@@ -43,7 +43,24 @@ template fmu*(id, guid:string, body: untyped): untyped {.dirty.} =
         isDirtyValues*: fmi2Boolean
         isNewEventIteration*: fmi2Boolean
 
+
   body
+
+  proc setStartValues*( comp: ModelInstance)  =
+      #var c = cast[ModelInstance](comp)
+      #echo repr c.GUID.string
+      for param in paramsI:
+        echo param.name, " ", param.addrI[]   
+        comp.i[param.idx] = param.addrI
+        #comp.i[param.idx][] = param.initValI #.fmi2Integer
+        #param.addrI[] = int(param.initVal)
+        #echo param.name
+      #when typ == tInt:
+      #  comp.i[n] = val.fmi2Integer  # Asigna al primer valor entero el valor "1"
+      #when typ == tFloat:
+      #  tFloat: comp.r[n]  = val.fmi2Real
+      #of tBool: comp.b[n]   = val.fmi2Boolean
+      #of tString: comp.s[n] = val.cstring.fmi2String  
 
   when nStates > 0:
      # array of value references of states

@@ -43,7 +43,7 @@ proc fmi2SetInteger*( comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csiz
         if vrOutOfRange(comp, "fmi2SetInteger", vr[i], nIntegers):
             return fmi2Error
         filteredLog(comp, fmi2OK, LOG_FMI_CALL, fmt"fmi2SetInteger: #i{vr[i]}# = {value[i]}" )
-        comp.i[vr[i]] = value[i]
+        comp.i[vr[i]][] = value[i].int32
 
     if nvr > 0:
        comp.isDirtyValues = fmi2True
