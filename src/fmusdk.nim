@@ -12,14 +12,14 @@ template fmu*(id, guid:string, body: untyped): untyped {.dirty.} =
   include enquire
 
   const
-      modelId* = id
-      modelGuid*       = guid
+      modelId*   = id
+      modelGuid* = guid
 
-      nReals*   = 0
+      nReals*     = 0
       nIntegers*  = 1
       nBooleans*  = 0
-      nStrings*  = 0
-      nStates*  = 0
+      nStrings*   = 0
+      nStates*    = 0
       nEventIndicators*  = 0
 
   #genModelInstance(0,1,0,0 ,0,0, NUMBER_OF_CATEGORIES)
@@ -65,7 +65,7 @@ template fmu*(id, guid:string, body: untyped): untyped {.dirty.} =
   #------
   when not compileOption("app", "lib"):
     import system, osproc, os, strformat, strutils, genfmu, tempfile, xml
-
+    #echo "OK"
     # Create the folder structure
     var dir = mkdtemp()
     let libDestination = dir / "binaries/linux64"
@@ -89,7 +89,10 @@ template fmu*(id, guid:string, body: untyped): untyped {.dirty.} =
     #copyFile( libName, path / "binaries/linux64" / libName )
 
     # Create XML
-    let data = createXml(modelId, modelGuid, 0)
+    let data = createXml( modelId, modelGuid, 0,
+                          paramsI, paramsR, paramsB, paramsS )
+    #echo repr paramsI
+
     writeFile(  dir / "modelDescription.xml", data )
 
     let fmuName = fmt"{modelId}.fmu"

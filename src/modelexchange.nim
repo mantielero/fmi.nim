@@ -22,7 +22,7 @@ proc fmi2EnterEventMode*(comp: ModelInstance): fmi2Status =
 
 proc fmi2NewDiscreteStates*(comp: ModelInstance; eventInfo: ptr fmi2EventInfo): fmi2Status =
     #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
-    var timeEvent: cint = 0
+    var timeEvent = false
     if invalidState(comp, "fmi2NewDiscreteStates", MASK_fmi2NewDiscreteStates):
         return fmi2Error
     filteredLog(comp, fmi2OK, LOG_FMI_CALL, "fmi2NewDiscreteStates")
@@ -33,7 +33,7 @@ proc fmi2NewDiscreteStates*(comp: ModelInstance; eventInfo: ptr fmi2EventInfo): 
     comp.eventInfo.valuesOfContinuousStatesChanged = fmi2False
 
     if (comp.eventInfo.nextEventTimeDefined > 0 and comp.eventInfo.nextEventTime <= comp.time):
-        timeEvent = 1
+        timeEvent = true
 
     eventUpdate(comp, addr(comp.eventInfo), timeEvent, comp.isNewEventIteration)
     comp.isNewEventIteration = fmi2False

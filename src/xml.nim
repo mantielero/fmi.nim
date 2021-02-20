@@ -1,3 +1,4 @@
+import params
 #https://rosettacode.org/wiki/XML/Output#Nim
 #[
 <?xml version="1.0" encoding="ISO-8859-1"?>
@@ -42,7 +43,52 @@
 import xmltree
 import strformat
 
-proc createXml*(modelName, guid: string, numberOfEventIndicators:int):string =
+
+proc `$`(v:Causality):string =
+  case v:
+  of cParameter:           "parameter"
+  of cCalculatedParameter: "calculatedParameter"
+  of cInput:               "input"
+  of cOutput:              "output"
+  of cLocal:               "local"
+  of cIndependent:         "independent"
+
+proc `$`(v:Variability):string =
+  case v:
+  of vConstant:   "constant"
+  of vFixed:      "fixed"
+  of vTunable:    "tunable"
+  of vDiscrete:   "discrete"
+  of vContinuous: "continuous"
+
+proc `$`(v:Initial):string =
+  case v:
+  of iExact: "exact"
+  of iApprox: "approx"
+  of iCalculated: "calculated"
+
+proc scalarVariable(p:Param):XmlNode =
+  let scalarVariableAttrs = { "name" : p.name,
+                              "valueReference" : fmt"{p.idx}",
+                              "description" : p.description,
+                              "causality" : $p.causality,
+                              "variability" : $p.variability,
+                              "initial" : $p.initial }.toXmlAttributes
+
+  let initial = case p.typ:
+                of tInt:    newElement("Integer")
+                of tFloat:  newElement("Real")
+                of tBool:   newElement("Boolean")
+                of tString: newElement("String")
+  initial.attrs = { "start" : p.initVal}.toXmlAttributes
+
+  let scalarVariable = newXmlTree("ScalarVariable", [initial], scalarVariableAttrs)
+
+  return scalarVariable
+
+
+proc createXml*( modelName, guid: string, numberOfEventIndicators:int,
+                paramsI, paramsR, paramsB, paramsS: Params):string =
   #var fmiModelDescription = newElement("fmiModelDescription")
   #fmiModelDescription.add newText("some text")
   #fmiModelDescription.add newComment("this is comment")
@@ -71,18 +117,30 @@ proc createXml*(modelName, guid: string, numberOfEventIndicators:int):string =
 
 
   #var scalarVariable = newElement("ScalarVariable")
+  var modelVariables = newElement("ModelVariables")
+
+  for param in paramsI:
+    #echo repr param
+    #discard
+    modelVariables.add scalarVariable(param)
+
+  #[
   let scalarVariableAttrs = { "name" : "counter",
                               "valueReference" : "0",
                               "description" : "counts the seconds",
                               "causality" : "output",
                               "variability" : "discrete",
                               "initial" : "exact" }.toXmlAttributes
+  echo repr scalarVariableAttrs
   let initial = newElement("Integer")
   initial.attrs = { "start" : "1"}.toXmlAttributes
-  let scalarVariable = newXmlTree("ScalarVariable", [initial], scalarVariableAttrs)
 
-  var modelVariables = newElement("ModelVariables")
-  modelVariables.add scalarVariable
+
+  let scalarVariable = newXmlTree("ScalarVariable", [initial], scalarVariableAttrs)
+  ]#
+
+
+
 
   var modelStructure = newElement("ModelStructure")
   var outputs = newElement("Outputs")
