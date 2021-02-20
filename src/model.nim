@@ -3,6 +3,7 @@ The compilation of this file generates the creator of the fmu. So the following
 line will create completely a `inc.fmu` in this case:
 
     $ nim c -r model  
+    
 ]#
 import fmusdk
 ##[
