@@ -7,10 +7,12 @@
 import strformat
 
 
-{.push exportc: "$1",dynlib,cdecl.}
+{.push exportc: "$1", dynlib, cdecl.}
 
-proc fmi2GetReal*(comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize_t;
-                 value: ptr fmi2Real): fmi2Status =
+proc fmi2GetReal*( comp: ModelInstance; 
+                   vr: ptr fmi2ValueReference; 
+                   nvr: csize_t;
+                   value: ptr fmi2Real): fmi2Status =
     #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
 
     if invalidState(comp, "fmi2GetReal", MASK_fmi2GetReal):
@@ -23,14 +25,13 @@ proc fmi2GetReal*(comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize_t;
         calculateValues(comp)
         comp.isDirtyValues = fmi2False
 
-    #---- Only compiled if NUMBER_OF_REALS is >0
-
+    # nly compiled if nReals >0
     when nReals > 0:
-    #if NUMBER_OF_REALS > 0:
+        var v = cast[ptr UncheckedArray[fmi2ValueReference]](nvr.int * sizeof(fmi2ValueReference))   #cast[ptr UncheckedArray[Player]](realloc(players, Player.sizeof * 4))
         for i in 0 ..< nvr:
-            if vrOutOfRange(comp, "fmi2GetReal", vr[i], NUMBER_OF_REALS):
+            if vrOutOfRange(comp, "fmi2GetReal", vr[i], nReals):
                 return fmi2Error
-            value[i] = getReal(comp, val) # <--------to be implemented by the includer of this file
+            value[i] = getReal(comp, v[i]) # <--------to be implemented by the includer of this file
             #value[i] = comp.r[vr[i]]
             #value[i] = r[val] #getReal(comp, val)
             filteredLog(comp, fmi2OK, LOG_FMI_CALL, fmt"fmi2GetReal: #r{vr[i]}# = {value[i]}" )
@@ -39,8 +40,10 @@ proc fmi2GetReal*(comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize_t;
 
 
 
-proc fmi2GetInteger*(comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize_t;
-                    value: ptr fmi2Integer): fmi2Status  =
+proc fmi2GetInteger*( comp: ModelInstance; 
+                      vr: ptr fmi2ValueReference; 
+                      nvr: csize_t;
+                      value: ptr fmi2Integer): fmi2Status  =
     #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
     if invalidState(comp, "fmi2GetInteger", MASK_fmi2GetInteger):
         return fmi2Error

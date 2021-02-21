@@ -1,86 +1,33 @@
 #[
+This model increments an int counter every second.
+
 The compilation of this file generates the creator of the fmu. So the following
 line will create completely a `inc.fmu` in this case:
 
     $ nim c -r model  
 
+To test `inc.fmu`, the following will test it for 10sec using 0.1sec steps:
+
+    $ fmusdk-master/fmu20/bin/fmusim_me inc.fmu 10 0.1
 ]#
 import fmusdk
-##[
-Increments an int counter every second.
-
-
-]##
-
-#[
-self.intOut = 1
-self.realOut = 3.0
-self.booleanVariable = True
-self.stringVariable = "Hello World!"
-self.register_variable(Integer("intOut", causality=Fmi2Causality.output))
-self.register_variable(Real("realOut", causality=Fmi2Causality.output))
-self.register_variable(Boolean("booleanVariable", causality=Fmi2Causality.local))
-self.register_variable(String("stringVariable", causality=Fmi2Causality.local))
-]#
-#[
-<ScalarVariable name="x" valueReference="0" description="the only state"
-                causality="local" variability="continuous" initial="exact">
-  <Real start="1"/>
-</ScalarVariable>
-<ScalarVariable name="der(x)" valueReference="1"
-                causality="local" variability="continuous" initial="calculated">
-  <Real derivative="1"/>
-</ScalarVariable>
-<ScalarVariable name="k" valueReference="2"
-                causality="parameter" variability="fixed" initial="exact">
-  <Real start="1"/>
-</ScalarVariable>
-]#
-
-
 
 fmu( "inc", "{8c4e810f-3df3-4a00-8276-176fa3c9f008}"):
   var contador:int = 1
   register(contador, cOutput, vDiscrete, iExact, "counts the seconds" )
 
-  #[
-  const
-    counter* = 0  # Es el identificador dentro del array
+  #calculate:  # Calculate values
+  initialization:  # Initialization code goes here
+      # set first time event
+      comp.eventInfo.nextEventTimeDefined = fmi2True
+      comp.eventInfo.nextEventTime        = 1 + comp.time  # So it will be 1sec if simulation starts at 0sec
 
-  proc setStartValues*( comp: ModelInstance)  =
-      #[
-      called by fmi2Instantiate
-      Set values for all variables that define a start value
-      Settings used unless changed by fmi2SetX before fmi2EnterInitializationMode
-      ]#
-      comp.i[counter] = 1  # Asigna al primer valor entero el valor "1"
-      #discard
-  ]#
-
-
-  proc calculateValues*( comp: ModelInstance) =
-      if comp.state == modelInitializationMode:
-          # set first time event
-          comp.eventInfo.nextEventTimeDefined = fmi2True
-          comp.eventInfo.nextEventTime        = 1 + comp.time
-
-  proc eventUpdate*( comp: ModelInstance, eventInfo:ptr fmi2EventInfo,
-                     isTimeEvent:bool, isNewEventIteration:int) =
-      ##[
-      Used to set the next time event, if any.
-      `eventInfo`:
-      ]##
-      if isTimeEvent:  # Each time there is a timeEvent, the counter is increased.
-          contador += 1  # Increase the counter
-          if contador == 13:
-              eventInfo.terminateSimulation  = fmi2True
-              eventInfo.nextEventTimeDefined = fmi2False
-          else:
-              eventInfo.nextEventTimeDefined = fmi2True
-              eventInfo.nextEventTime        = 1 + comp.time
-
-
-
-  #fmusdk-master/fmu20/bin/fmusim_me inc.fmu 10 0.1
-  #readelf -Ws inc.so | grep fmi2 > nueva.txt
-  #awk '{print $8}' nueva.txt > nueva_functions.txt
+  event:  # used to set the next time event (if any)
+    if isTimeEvent:  # Each time there is a timeEvent, the counter is increased.
+        contador += 1  # Increase the counter
+        if contador == 13:  # Stop condition (avoids going further than 13sec)
+            eventInfo.terminateSimulation  = fmi2True
+            eventInfo.nextEventTimeDefined = fmi2False
+        else:
+            eventInfo.nextEventTimeDefined = fmi2True
+            eventInfo.nextEventTime        = 1 + comp.time

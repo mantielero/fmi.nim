@@ -1,6 +1,7 @@
 import macros
 import definitions
 
+#[
 macro genModelInstance*( numberOfReals, numberOfIntegers,
                numberOfBooleans, numberOfStrings,
                numberOfStates, numberOfEventIndicators,
@@ -18,7 +19,7 @@ macro genModelInstance*( numberOfReals, numberOfIntegers,
   result = quote do:
       type
         `modelInstance` = ref object
-            r*:          array[`numberOfReals`, fmi2Real]
+            r*:          array[`numberOfReals`, ptr float] #fmi2Real]
             i*:          array[`numberOfIntegers`, ptr int] #fmi2Integer]
             b*:          array[`numberOfBooleans`, fmi2Boolean]
             s*:          array[`numberOfStrings`, fmi2String]
@@ -37,3 +38,4 @@ macro genModelInstance*( numberOfReals, numberOfIntegers,
             isNewEventIteration*: fmi2Boolean
 
   #echo result.repr
+]#

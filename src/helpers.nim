@@ -33,8 +33,8 @@ proc nullPointer*(comp:ModelInstance, f:cstring, arg:cstring, p:pointer):bool =
 
     return false
 
-proc vrOutOfRange*(comp:ModelInstance, f:cstring,  vr:fmi2ValueReference, `end`:cint):bool =
-    if vr.cint >= `end`:
+proc vrOutOfRange*(comp:ModelInstance, f:cstring,  vr:fmi2ValueReference, `end`:int):bool =
+    if vr.int >= `end`:
         filteredLog(comp, fmi2Error, LOG_ERROR, fmt"{f}: Illegal value reference {vr}.")
         comp.state = modelError
         return true

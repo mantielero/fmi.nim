@@ -67,7 +67,7 @@ proc `$`(v:Initial):string =
   of iApprox: "approx"
   of iCalculated: "calculated"
 
-proc scalarVariable(p:Param):XmlNode =
+proc scalarVariable[P:(ParamI | ParamR | ParamB | ParamS)](p:P):XmlNode =
   let scalarVariableAttrs = { "name" : p.name,
                               "valueReference" : fmt"{p.idx}",
                               "description" : p.description,
@@ -80,7 +80,7 @@ proc scalarVariable(p:Param):XmlNode =
                 of tFloat:  newElement("Real")
                 of tBool:   newElement("Boolean")
                 of tString: newElement("String")
-  initial.attrs = { "start" : fmt"{p.initValI}"}.toXmlAttributes
+  initial.attrs = { "start" : fmt"{p.initVal}"}.toXmlAttributes
 
   let scalarVariable = newXmlTree("ScalarVariable", [initial], scalarVariableAttrs)
 
@@ -88,7 +88,10 @@ proc scalarVariable(p:Param):XmlNode =
 
 
 proc createXml*( modelName, guid: string, numberOfEventIndicators:int,
-                paramsI, paramsR, paramsB, paramsS: Params):string =
+                paramsI:seq[ParamI], 
+                paramsR:seq[ParamR], 
+                paramsB:seq[ParamB], 
+                paramsS:seq[ParamS] ):string =
   #var fmiModelDescription = newElement("fmiModelDescription")
   #fmiModelDescription.add newText("some text")
   #fmiModelDescription.add newComment("this is comment")

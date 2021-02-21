@@ -299,47 +299,46 @@ New in FMI 2.0.2: It is discouraged to use the memory callback functions.]
 
 #⨪--------------------------------------
 
+var paramsI*:seq[ParamI]
+var paramsR*:seq[ParamR]
+var paramsB*:seq[ParamB]
+var paramsS*:seq[ParamS]
 
+var nParamsI{.compileTime.}: int = 0
+var nParamsR{.compileTime.}: int = 0
+var nParamsB{.compileTime.}: int = 0
+var nParamsS{.compileTime.}: int = 0
 
-
-var paramsI*:Params
-var paramsR*:Params
-var paramsB*:Params
-var paramsS*:Params
-
-template register*( val: untyped,
+template register*( val: int,
                     caus:Causality,
                     varia:Variability,
                     ini:Initial,
                     desc:string) =
-  #let valName = val.astToStr
-  var (typ, n)  = case val.type.name:
-                  of "int":    (tInt, paramsI.len)
-                  of "float":  (tFloat, paramsR.len)
-                  of "bool":   (tBool, paramsB.len)
-                  of "string": (tString, paramsS.len)
-                  else: quit(QuitFailure) #raise(ValueError, "The variable requires types: int, float, bool or string" )
-
-  #var typ = int
-  #let n = case typ:
-  #        of  tInt: paramsI.len
-  #        of  tFloat:
-  #let initVal = $val
-
-  if typ == tInt:
-    var tmp = Param( name: val.astToStr,
-                    typ: typ,
-                    idx: n,
+  var tmp = ParamI( name: val.astToStr,
+                    typ: tInt,
+                    idx: paramsI.len,
                     causality:caus,
                     variability:varia,
                     initial:ini,
                     description:desc,
-                    initValI: val,
-                    addrI: addr(val) ) #fmt"{typ}"   )   
-    #comp.r[n] = val
-    paramsI.add(tmp)
-  # Want to print 'name' here, not its value like with backticks
+                    initVal: val,
+                    address: addr(val) ) #fmt"{typ}"   )   
+  paramsI.add(tmp)
+  static: nParamsI += 1
 
-  #[
-
-  ]#
+template register*( val: float,
+                    caus:Causality,
+                    varia:Variability,
+                    ini:Initial,
+                    desc:string) =
+  var tmp = ParamR( name: val.astToStr,
+                    typ: tFloat,
+                    idx: paramsR.len,
+                    causality:caus,
+                    variability:varia,
+                    initial:ini,
+                    description:desc,
+                    initVal: val,
+                    address: addr(val) ) #fmt"{typ}"   )   
+  paramsR.add(tmp)                     
+  static: nParamsR += 1

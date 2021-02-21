@@ -105,7 +105,7 @@ type
       ]##
 
 
-  Param* = ref object
+  Param* = ref object of RootObj
     name*: string
     typ*: ParamType
     idx*: int
@@ -113,7 +113,40 @@ type
     variability*: Variability
     initial*: Initial
     description*: string
+    #initValI*: int
+    #addrI*: ptr int
+    #initValR*: int
+    #addrR*: ptr int
+
+  ParamI* = ref object of Param
+    initVal*: int
+    address*: ptr int
+
+  ParamR* = ref object of Param
+    initVal*: float
+    address*: ptr float
+
+
+  ParamB* = ref object of Param
+    initVal*: bool
+    address*: ptr bool
+
+  ParamS* = ref object of Param
+    initVal*: string
+    address*: ptr string
+  #ParamsI* = seq[ParamI]
+  #ParamsR* = seq[ParamR]
+
+  #[
+  ParamI* = ref object
+    name*: string
+    idx*: int
+    causality*: Causality
+    variability*: Variability
+    initial*: Initial
+    description*: string
     initValI*: int
     addrI*: ptr int
-  
-  Params* = seq[Param]
+    initValR*: int
+    addrR*: ptr int
+  ]#

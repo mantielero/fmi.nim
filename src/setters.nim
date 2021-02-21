@@ -20,7 +20,7 @@ proc fmi2SetReal*(comp: ModelInstance; vr: ptr fmi2ValueReference; nvr: csize_t;
         if vrOutOfRange(comp, "fmi2SetReal", vr[i], nReals):
             return fmi2Error
         filteredLog(comp, fmi2OK, LOG_FMI_CALL, fmt"fmi2SetReal: #r{vr[i]}# = {value[i]}")
-        comp.r[vr[i]] = value[i]
+        comp.r[vr[i]][] = value[i].float
 
     if nvr > 0:
        comp.isDirtyValues = fmi2True

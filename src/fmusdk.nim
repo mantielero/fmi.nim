@@ -2,30 +2,19 @@
 #modelinstancetype, modelstate
 #import fmi2TypesPlatform, fmi2type, fmi2callbackfunctions, modelstate, fmi2eventinfo
 
-
-#a, b: untyped
-template fmu*(id, guid:string, body: untyped): untyped {.dirty.} =
-  ## This templates creates the appropriate structure for the FMU
-
-  #import typedefinition
-  include definitions#, enquire
-  include enquire
-
+template defineModel*( ):untyped {.dirty.} =                       
   const
-      modelId*   = id
-      modelGuid* = guid
-
-      nReals*     = 0
-      nIntegers*  = 1
-      nBooleans*  = 0
-      nStrings*   = 0
-      nStates*    = 0
-      nEventIndicators*  = 0
+      nIntegers*  = nParamsI    
+      nReals*     = nParamsR 
+      nBooleans*  = nParamsB
+      nStrings*   = nParamsS
+      nStates*    = 0 #numStates
+      nEventIndicators*  = 0 #numEventIndicators
 
   #genModelInstance(0,1,0,0 ,0,0, NUMBER_OF_CATEGORIES)
   type
     ModelInstance* = ref object
-        r*:          array[nReals, fmi2Real]
+        r*:          array[nReals, ptr float]  #fmi2Real]
         i*:          array[nIntegers, ptr int] #fmi2Integer]
         b*:          array[nBooleans, fmi2Boolean]
         s*:          array[nStrings, fmi2String]
@@ -43,15 +32,35 @@ template fmu*(id, guid:string, body: untyped): untyped {.dirty.} =
         isDirtyValues*: fmi2Boolean
         isNewEventIteration*: fmi2Boolean
 
+template setDefinitions*():untyped {.dirty.} =
+  when not declared(nIntegers):
+    defineModel( )
+
+#a, b: untyped
+template fmu*(id, guid:string, body: untyped): untyped {.dirty.} =
+  ## This templates creates the appropriate structure for the FMU
+  const
+    modelId*   = id 
+    modelGuid* = guid
+
+  #import typedefinition
+  include definitions#, enquire
+  include enquire
 
   body
+  
+  setDefinitions()  
 
   proc setStartValues*( comp: ModelInstance)  =
       #var c = cast[ModelInstance](comp)
       #echo repr c.GUID.string
       for param in paramsI:
-        echo param.name, " ", param.addrI[]   
-        comp.i[param.idx] = param.addrI
+        echo param.name, " ", param.address[]   
+        comp.i[param.idx] = param.address
+
+      for param in paramsR:
+        echo param.name, " ", param.address[]   
+        comp.r[param.idx] = param.address      
         #comp.i[param.idx][] = param.initValI #.fmi2Integer
         #param.addrI[] = int(param.initVal)
         #echo param.name
@@ -61,6 +70,15 @@ template fmu*(id, guid:string, body: untyped): untyped {.dirty.} =
       #  tFloat: comp.r[n]  = val.fmi2Real
       #of tBool: comp.b[n]   = val.fmi2Boolean
       #of tString: comp.s[n] = val.cstring.fmi2String  
+
+  when not declared(calculateValues):
+    #setDefinitions( )    
+    proc calculateValues*( comp: ModelInstance) = discard
+
+  when not declared(eventUpdate):
+    #setDefinitions( )    
+    proc eventUpdate*( comp: ModelInstance, eventInfo:ptr fmi2EventInfo,
+                      isTimeEvent:bool, isNewEventIteration:int) = discard
 
   when nStates > 0:
      # array of value references of states
@@ -117,3 +135,40 @@ template fmu*(id, guid:string, body: untyped): untyped {.dirty.} =
     echo "FMU created: ", fmuName
     echo fmt"Try it: fmusdk-master/fmu20/bin/fmusim_me {fmuName} 10 0.1"
     quit(QuitSuccess)
+
+#template calculate*(body: untyped): untyped {.dirty.} =
+#    body
+
+
+
+template initialization*(body: untyped): untyped {.dirty.} =
+  #when not defined(modelId):
+  setDefinitions( )
+
+  proc calculateValues*( comp: ModelInstance) =  
+    if comp.state == modelInitializationMode:
+      body
+
+template event*(body:untyped):untyped {.dirty.} =
+  setDefinitions( )  
+  proc eventUpdate*( comp: ModelInstance, eventInfo:ptr fmi2EventInfo,
+                    isTimeEvent:bool, isNewEventIteration:int) =
+    body
+
+template equations*(body: untyped): untyped {.dirty.} =
+  setDefinitions() 
+
+  # called by fmi2GetReal, fmi2GetContinuousStates and fmi2GetDerivatives
+  proc getReal*(comp:ModelInstance, vr:fmi2ValueReference):fmi2Real =
+      #var r = cast[ptr array[3,fmi2Real]](addr comp.r)
+      #comp.r[vr]
+      case vr:
+      of 0..nReals-1: comp.r[vr][].fmi2Real
+      else: 0.fmi2Real
+      #return comp.r[vr][]
+
+      #case vr:
+      #  of x     : return comp.r[x]
+      #  of der_x : return - r[k] * r[x]
+      #  of k     : return r[k]
+      #  else     : return 0  
