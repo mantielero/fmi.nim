@@ -20,10 +20,11 @@ import fmusdk
 fmu( "dq", "{8c4e810f-3df3-4a00-8276-176fa3c9f000}"):
   var x:float = 1.0
   var k:float = 1.0
-  var der_x:float
+  var x_dot:float
+  der(x_dot, x): -k * x
   register(x,     cLocal,     vContinuous, iExact,      "the only state" )
-  register(der_x, cLocal,     vContinuous, iCalculated, "" )
+  #register(der_x, cLocal,     vContinuous, iCalculated, "" )
   register(k,     cParameter, vFixed,      iExact,      "" )
-
-  equations:
-    der_x = -k * x
+  
+  #equations:
+  #  der_x = -k * x

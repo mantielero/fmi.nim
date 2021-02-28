@@ -4,6 +4,9 @@
        #modelstate
 #import model
 import strformat
+#import logging
+
+#var logger = newConsoleLogger()
 
 ## ---------------------------------------------------------------------------
 ## Functions for FMI2 for Model Exchange
@@ -100,8 +103,8 @@ proc fmi2SetContinuousStates*(comp: ModelInstance; x: ptr fmi2Real; nx: csize_t)
         for i in 0 ..< nx:
             var vr: fmi2ValueReference = vrStates[i]
             filteredLog(comp, fmi2OK, LOG_FMI_CALL, "fmi2SetContinuousStates: #r{vr}#={x[i]}")
-            assert(vr < NUMBER_OF_REALS)
-            comp.r[vr] = x[i]
+            assert(vr.int < nReals)
+            comp.r[vr][] = x[i]
     return fmi2OK
 
 
@@ -141,17 +144,31 @@ proc fmi2GetEventIndicators*(comp: ModelInstance; eventIndicators: ptr fmi2Real;
 
 
 proc fmi2GetContinuousStates*(comp: ModelInstance; states: ptr fmi2Real; nx: csize_t): fmi2Status =
+    ##[
+    Return the new (continuous) state vector x.
+    
+    After calling function fmi2NewDiscreteStates and it returns with
+    eventInfo>valuesOfContinuousStatesChanged = fmi2True all states with reinit=true
+    must be updated. It can be done with this fuction to update all states, or by
+    fmi2GetReal on the individual states that have reinit = true.
+    ]##
     #var i:int
     #var comp: ptr ModelInstance = cast[ptr ModelInstance](c)
+    #echo "nx: ", nx
+    #echo "vrStates[0]: ", vrStates[0]
+    #echo "getReal: ", getReal(comp, vrStates[0])#vrStates[0]
     if invalidState(comp, "fmi2GetContinuousStates", MASK_fmi2GetContinuousStates):
         return fmi2Error
-    if invalidNumber(comp, "fmi2GetContinuousStates", "nx", nx.cint, nStates):
+    if invalidNumber(comp, "fmi2GetContinuousStates", "nx", nx.int, nStates):
+        echo "allo2"
         return fmi2Error
     if nullPointer(comp, "fmi2GetContinuousStates", "states[]", states):
         return fmi2Error
+    echo "OK"
     when nStates > 0:
         for i in 0 ..< nx:
             var vr:fmi2ValueReference = vrStates[i]
+            echo "i: ", i
             states[i] = getReal(comp, vr) # to be implemented by the includer of this file
             filteredLog(comp, fmi2OK, LOG_FMI_CALL, fmt"fmi2GetContinuousStates: #r{vr}# = {states[i]}" )
 

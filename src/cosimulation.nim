@@ -95,11 +95,11 @@ proc fmi2DoStep*(comp: ModelInstance; currentCommunicationPoint: fmi2Real;
 
     when nStates > 0:
         for i in 0 ..< nStates:
-            prevState[i] = comp.r[vrStates[i]]
+            prevState[i] = comp.r[vrStates[i]][]
 
-        for i in 0 ..< NUMBER_OF_STATES:
+        for i in 0 ..< nStates:
             var vr:fmi2ValueReference = vrStates[i]
-            comp.r[vr] += h * getReal(comp, vr + 1)  # forward Euler step
+            comp.r[vr][] += h * getReal(comp, vr + 1)  # forward Euler step
 
     when nEventIndicators > 0:
         # check for state event

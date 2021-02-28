@@ -1,1 +1,1 @@
-return fmi2SetString(comp, &vr, 1, &value);
+fmi2ValueReference vrStates[NUMBER_OF_STATES] = STATES;

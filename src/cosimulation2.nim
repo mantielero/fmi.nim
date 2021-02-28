@@ -3,7 +3,7 @@
 import strformat
 
 # Inquire slave status
-proc getStatus*(fname: cstring; comp: ModelInstance; s: fmi2StatusKind): fmi2Status =
+proc getStatus*(fname: string; comp: ModelInstance; s: fmi2StatusKind): fmi2Status =
     var statusKind: array[0..2, string] = ["fmi2DoStepStatus", "fmi2PendingStatus",
                                  "fmi2LastSuccessfulTime"]
 

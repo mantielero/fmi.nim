@@ -1,6 +1,17 @@
 
 #modelinstancetype, modelstate
 #import fmi2TypesPlatform, fmi2type, fmi2callbackfunctions, modelstate, fmi2eventinfo
+#[
+import macros
+
+macro der(x,y, body:untyped):untyped  =
+  result = quote do:
+     `x` =  `body`
+]#
+template der(dependant,independant,body:untyped):untyped =
+  register(dependant, cLocal,     vContinuous, iCalculated, "" )
+  dependant = body  # Derivative calculation
+
 
 template defineModel*( ):untyped {.dirty.} =                       
   const
@@ -80,9 +91,20 @@ template fmu*(id, guid:string, body: untyped): untyped {.dirty.} =
     proc eventUpdate*( comp: ModelInstance, eventInfo:ptr fmi2EventInfo,
                       isTimeEvent:bool, isNewEventIteration:int) = discard
 
+
+  #[ Lenguaje C
+  // define state vector as vector of value references
+  #define STATES { x_ }
+
+  // array of value references of states
+  #if NUMBER_OF_STATES>0
+  fmi2ValueReference vrStates[NUMBER_OF_STATES] = STATES;
+  #endif
+  ]#
   when nStates > 0:
      # array of value references of states
-     var vrStates*: array[nStates, fmi2ValueReference] = STATES
+     var vrStates*: array[nStates, fmi2ValueReference]
+     vrStates = [0.fmi2ValueReference]
 
   #include getters
   include logger, masks, helpers, getters, setters
@@ -99,7 +121,7 @@ template fmu*(id, guid:string, body: untyped): untyped {.dirty.} =
 
   #------
   when not compileOption("app", "lib"):
-    import system, osproc, os, strformat, strutils, genfmu, tempfile, xml
+    import system, osproc, os, strformat, strutils, genfmu, tempfile, schema/xml
     #echo "OK"
     # Create the folder structure
     var dir = mkdtemp()
@@ -162,9 +184,18 @@ template equations*(body: untyped): untyped {.dirty.} =
   proc getReal*(comp:ModelInstance, vr:fmi2ValueReference):fmi2Real =
       #var r = cast[ptr array[3,fmi2Real]](addr comp.r)
       #comp.r[vr]
+      if paramsR[vr].initial == iCalculated:
+        body
+        
+      
       case vr:
-      of 0..nReals-1: comp.r[vr][].fmi2Real
-      else: 0.fmi2Real
+      of 0..nReals-1:
+        comp.r[vr][]
+      else:
+        0
+      #case vr:
+      #of 0..nReals-1: comp.r[vr][].fmi2Real
+      #else: 0.fmi2Real
       #return comp.r[vr][]
 
       #case vr:
