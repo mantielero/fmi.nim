@@ -1,3 +1,7 @@
+# TODO: 
+# 1. ScalarVariable: al registrar, poder añadir la derivada.
+# 2. Structure: generar la estructura adecuadamente
+# 3. 
 
 #modelinstancetype, modelstate
 #import fmi2TypesPlatform, fmi2type, fmi2callbackfunctions, modelstate, fmi2eventinfo
@@ -8,9 +12,15 @@ macro der(x,y, body:untyped):untyped  =
   result = quote do:
      `x` =  `body`
 ]#
-template der(dependant,independant,body:untyped):untyped =
-  register(dependant, cLocal,     vContinuous, iCalculated, "" )
-  dependant = body  # Derivative calculation
+
+template der*(dependant,independant,body:untyped):untyped {.dirty.} =
+  static: numStates += 1
+  #echo numStates
+  #numStates = 1
+  register(dependant, cLocal,     vContinuous, iCalculated, "", independant )
+  equations:
+    #dependant = body  # Derivative calculation
+    body
 
 
 template defineModel*( ):untyped {.dirty.} =                       
@@ -19,9 +29,9 @@ template defineModel*( ):untyped {.dirty.} =
       nReals*     = nParamsR 
       nBooleans*  = nParamsB
       nStrings*   = nParamsS
-      nStates*    = 0 #numStates
+      nStates*    = numStates  # (known by the number of derivates) [Note that the information about continuous states is defined with element fmiModelDescription.ModelStructure.Derivatives
       nEventIndicators*  = 0 #numEventIndicators
-
+  echo "Number of states: ", nStates
   #genModelInstance(0,1,0,0 ,0,0, NUMBER_OF_CATEGORIES)
   type
     ModelInstance* = ref object
@@ -65,13 +75,17 @@ template fmu*(id, guid:string, body: untyped): untyped {.dirty.} =
   proc setStartValues*( comp: ModelInstance)  =
       #var c = cast[ModelInstance](comp)
       #echo repr c.GUID.string
-      for param in paramsI:
-        echo param.name, " ", param.address[]   
-        comp.i[param.idx] = param.address
-
-      for param in paramsR:
-        echo param.name, " ", param.address[]   
-        comp.r[param.idx] = param.address      
+      var nParamR = 0
+      var nParamI = 0
+      for param in params:
+        case param.kind
+        of tInteger: 
+          comp.i[nParamI] = param.addressI
+          nParamI += 1
+        of tReal: 
+          comp.r[nParamR] = param.addressR
+          nParamR += 1
+        else: discard  
         #comp.i[param.idx][] = param.initValI #.fmi2Integer
         #param.addrI[] = int(param.initVal)
         #echo param.name
@@ -147,7 +161,7 @@ template fmu*(id, guid:string, body: untyped): untyped {.dirty.} =
 
     # Create XML
     let data = createXml( modelId, modelGuid, 0,
-                          paramsI, paramsR, paramsB, paramsS )
+                          params )
     #echo repr paramsI
 
     writeFile(  dir / "modelDescription.xml", data )
@@ -178,21 +192,38 @@ template event*(body:untyped):untyped {.dirty.} =
     body
 
 template equations*(body: untyped): untyped {.dirty.} =
-  setDefinitions() 
+  #[ TODO: no soporta el que haya varias derivadas
 
+  ]#
+  setDefinitions() 
+  #echo "EQUATIONS"
   # called by fmi2GetReal, fmi2GetContinuousStates and fmi2GetDerivatives
-  proc getReal*(comp:ModelInstance, vr:fmi2ValueReference):fmi2Real =
-      #var r = cast[ptr array[3,fmi2Real]](addr comp.r)
-      #comp.r[vr]
-      if paramsR[vr].initial == iCalculated:
-        body
-        
-      
+  proc getReal*(comp:ModelInstance, vr:fmi2ValueReference):fmi2Real {.exportc:"$1", dynlib, cdecl.} =
+      #if params[vr].initial.get == iCalculated:
+      #  body
+      #var x = comp.r[0][]
+      #var k = comp.r[1][]
+      case vr:
+        of 0: 
+          return comp.r[0][]
+        of 1: 
+          return comp.r[1][]
+        of 2: 
+          var x = comp.r[0][]
+          var k = comp.r[1][]
+          return body
+        else: 
+          return 0.0
+      #[
       case vr:
       of 0..nReals-1:
+        #echo vr
+        echo repr comp.r
+        #echo vr.int " -> ", repr comp.r[vr.int]
         comp.r[vr][]
       else:
         0
+      ]#
       #case vr:
       #of 0..nReals-1: comp.r[vr][].fmi2Real
       #else: 0.fmi2Real

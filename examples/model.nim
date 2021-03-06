@@ -9,8 +9,25 @@ line will create completely a `inc.fmu` in this case:
 To test `inc.fmu`, the following will test it for 10sec using 0.1sec steps:
 
     $ fmusdk-master/fmu20/bin/fmusim_me inc.fmu 10 0.1
+
+
+https://github.com/ModiaSim/Modia.jl
+
+FUTURO: Julia Modia
+  using Modia
+  @model FirstOrder begin
+     x = Variable(start=1)   # start means x(0)
+     T = Parameter(0.5)      # Time constant
+     u = 2.0                 # Same as Parameter(2.0)
+  @equations begin
+     T*der(x) + x = u        # der() means time derivative
+     end
+  end;
+
+model("FirstOrder"):
+  
 ]#
-import fmusdk
+import ../src/fmusdk
 
 fmu( "inc", "{8c4e810f-3df3-4a00-8276-176fa3c9f008}"):
   var contador:int = 1

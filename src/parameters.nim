@@ -1,6 +1,8 @@
+import options, xmltree, strformat
+
 type
   ParamType* = enum
-    tInt, tFloat, tBool, tString
+    tInteger, tReal, tBoolean, tString
 
   Causality* = enum
     cParameter,
@@ -88,6 +90,7 @@ type
       ]##
 
   Initial* = enum
+    #iUnset, # I have invented this as default
     iExact,
       ##[
       The variable is initialized with the startvalue(provided under Real,
@@ -105,6 +108,36 @@ type
       ]##
 
 
+  #ParamKind* = enum
+  #  pkReal, pkInteger, pkBoolean, pkString
+
+  Param* = object
+    #kind*: ParamType
+    name*: string
+    idx*: int
+    causality*: Option[Causality]
+    variability*: Option[Variability]
+    initial*: Option[Initial]
+    description*: Option[string]
+    canHandleMultipleSetPerTimeInstant*: Option[string]    
+    case kind*:ParamType
+    of tReal:
+      addressR*: ptr float
+      startR*: Option[float]
+      derivative*: Option[uint]
+      reinit*: Option[bool]
+    of tInteger:
+      addressI*: ptr int
+      startI*: Option[int]
+    of tBoolean:
+      addressB*: ptr bool
+      startB*: Option[bool]
+    of tString:
+      addressS*: ptr string
+      startS*: Option[string]
+
+
+  #[
   Param* = ref object of RootObj
     name*: string
     typ*: ParamType
@@ -113,17 +146,18 @@ type
     variability*: Variability
     initial*: Initial
     description*: string
-    #initValI*: int
-    #addrI*: ptr int
-    #initValR*: int
-    #addrR*: ptr int
+  ]#
 
+  #[
   ParamI* = ref object of Param
     initVal*: int
     address*: ptr int
-
+  ]#
+  #[
   ParamR* = ref object of Param
-    initVal*: float
+    start*: float
+    derivative*: uint
+    reinit*: bool
     address*: ptr float
 
 
@@ -134,6 +168,7 @@ type
   ParamS* = ref object of Param
     initVal*: string
     address*: ptr string
+  ]#
   #ParamsI* = seq[ParamI]
   #ParamsR* = seq[ParamR]
 
@@ -150,3 +185,43 @@ type
     initValR*: int
     addrR*: ptr int
   ]#
+
+#[
+proc get*(r:Param):XmlNode =
+  var att:seq[(string,string)]
+  if r.name == "":
+    quit("`name` needs to contain a string", QuitFailure)
+  att.add ("name", r.name)
+
+  #if r.valueReference == 0.uint:
+  #  quit("`valueReference` needs to be >0", QuitFailure)
+  att.add ("valueReference", fmt"{r.idx}")
+
+  if r.description.isSome:
+    att.add ("description", r.description.get)
+  if r.causality.isSome:
+    att.add ("causality", $r.causality.get)
+  if r.variability.isSome:
+    att.add ("variability", $r.variability.get)
+  if r.initial.isSome:
+    att.add ("initial", $r.initial.get)
+  if r.canHandleMultipleSetPerTimeInstant.isSome:
+    att.add ("canHandleMultipleSetPerTimeInstant", r.canHandleMultipleSetPerTimeInstant.get) 
+
+  let attributes = att.toXmlAttributes
+
+  var children:seq[XmlNode]
+  case r.kind
+  of tReal:
+    children.add get(r.childReal)
+  of tInteger:
+    children.add get(r.childInteger)
+  of tBoolean:
+    children.add get(r.childBoolean)
+  of tString:
+    children.add get(r.childString)
+  of tEnumeration:
+    children.add get(r.childEnumeration)
+  
+  return newXmlTree("ScalarVariable",children, attributes)
+]#

@@ -23,14 +23,6 @@
   </ScalarVariable>
 </ModelVariables>
 
-<ModelStructure>
-  <Derivatives>
-    <Unknown index="2" />
-  </Derivatives>
-  <InitialUnknowns>
-    <Unknown index="2"/>
-  </InitialUnknowns>
-</ModelStructure>
 
 </fmiModelDescription>
 
@@ -38,7 +30,7 @@
 
 ]#
 import xmltree, strformat, options
-import ../params
+import ../parameters
 import modelVariables, structure
 
 type
@@ -70,7 +62,7 @@ type
     of mkCoSimulation:
       coSimulation:CoSimulation
     logCategories:LogCategories
-    variables:seq[ScalarVariable]
+    variables:seq[Param]  #seq[ScalarVariable]
     structure:ModelStructure
 
 
@@ -169,22 +161,47 @@ proc `$`(v:Initial):string =
   of iApprox: "approx"
   of iCalculated: "calculated"
 
-proc scalarVariable[P:(ParamI | ParamR | ParamB | ParamS)](p:P):XmlNode =
-  let scalarVariableAttrs = { "name" : p.name,
-                              "valueReference" : fmt"{p.idx}",
-                              "description" : p.description,
-                              "causality" : $p.causality,
-                              "variability" : $p.variability,
-                              "initial" : $p.initial }.toXmlAttributes
+proc scalarVariable(p:Param, idx: int):XmlNode =
+ #echo idx
+  var scalarVariableAttrs = @[(key:"name", val:p.name), (key:"valueReference", val:fmt"{idx}")]
+  if p.description.isSome:
+    scalarVariableAttrs.add (key:"description", val:p.description.get)
+  if p.causality.isSome:
+    scalarVariableAttrs.add (key:"causality", val: $p.causality.get)
+  if p.variability.isSome:
+    scalarVariableAttrs.add (key:"variability", val: $p.variability.get)    
+  if p.initial.isSome:
+    scalarVariableAttrs.add (key:"initial", val: $p.initial.get) 
 
-  let initial = case p.typ:
-                of tInt:    newElement("Integer")
-                of tFloat:  newElement("Real")
-                of tBool:   newElement("Boolean")
-                of tString: newElement("String")
-  initial.attrs = { "start" : fmt"{p.initVal}"}.toXmlAttributes
+  let attrs = scalarVariableAttrs.toXmlAttributes
 
-  let scalarVariable = newXmlTree("ScalarVariable", [initial], scalarVariableAttrs)
+  let initial = case p.kind:
+                of tInteger: newElement("Integer")
+                of tReal:    newElement("Real")
+                of tBoolean: newElement("Boolean")
+                of tString:  newElement("String")
+  var initialAttrs:seq[(string,string)]
+  case p.kind:
+  of tInteger:
+    if p.startI.isSome:
+      initialAttrs.add (key:"start", val:fmt"{p.startI.get}")
+  of tBoolean:
+    if p.startB.isSome:
+      initialAttrs.add (key:"start", val:fmt"{p.startB.get}")  
+  of tString:
+    if p.startS.isSome:
+      initialAttrs.add (key:"start", val:fmt"{p.startS.get}")        
+  of tReal:
+    if p.startR.isSome:
+      initialAttrs.add (key:"start", val:fmt"{p.startR.get}")      
+    if p.derivative.isSome:
+      initialAttrs.add (key:"derivative", val:fmt"{p.derivative.get}") 
+    if p.reinit.isSome:
+      initialAttrs.add (key:"reinit", val:fmt"{p.reinit.get}")        
+
+  initial.attrs = initialAttrs.toXmlAttributes
+
+  let scalarVariable = newXmlTree("ScalarVariable", [initial], attrs)
 
   return scalarVariable
 
@@ -204,8 +221,8 @@ proc gen(md:FmiModelDescription):XmlNode =
 
 
   var children:seq[XmlNode]
-  for i in md.variables:
-    children.add i.get
+  for idx, i in md.variables:
+    children.add i.scalarVariable idx  #i.get
   var modelVariables = newXmlTree( "ModelVariables", children )
 
   #var modelStructure = newElement("ModelStructure")
@@ -221,6 +238,7 @@ proc gen(md:FmiModelDescription):XmlNode =
               "numberOfEventIndicators" : fmt"{numberOfEventIndicators}"}.toXmlAttributes
   ]#
   let modelStructure = md.structure.get
+  #echo repr modelStructure
   #let modelVariables = md.variables.get
   #let modelExchange 
   return newXmlTree( "fmiModelDescription", 
@@ -228,84 +246,47 @@ proc gen(md:FmiModelDescription):XmlNode =
                      attributes )
 
 proc createXml*( modelName, guid: string, numberOfEventIndicators:int,
-                paramsI:seq[ParamI], 
-                paramsR:seq[ParamR], 
-                paramsB:seq[ParamB], 
-                paramsS:seq[ParamS] ):string =
+                params:seq[Param] ):string =
+  ##[
+  Creates the XML string from the data
+  ]##
 
   var att = FmiModelDescriptionAttributes( fmiVersion:2, 
                                            modelName:modelName,
                                            guid:guid, 
                                            numberOfEventIndicators:numberOfEventIndicators )
                                         
-  var xmldata = FmiModelDescription( kind: mkModelExchange, 
-                                     modelExchange: ModelExchange( 
-                                                      modelIdentifier: modelName,
-                                                      files: @["inc.c"] ) 
-                                   )
+  var xmldata = FmiModelDescription( kind: mkModelExchange) #, 
+
+                                   #)
   xmldata.attr = att
 
   #var modelExchange = getModelExchange(modelName, @["inc.c"])
   #xmldata.kind = mkModelExchange
-  #xmldata.modelExchange = ModelExchange( modelIdentifier: modelName,
-  #                                       files: @["inc.c"] )
+  xmldata.modelExchange = ModelExchange( modelIdentifier: modelName,
+                                         files: @["inc.c"] )
   xmldata.logCategories = @["logAll", "logError", "logFmiCall", "logEvent"]
-  
-
-  #variables:seq[ScalarVariable]
-  #structure:ModelStructure  
-  
-  #let logCategories = getLogCategories( categories )
-
-  
 
 
-  #var modelVariables = newElement("ModelVariables")
+  for p in params:
+    xmldata.variables.add p#.scalarVariable#.get #scalarVariable(param)
 
+  # Create the model structure
+  var md:ModelStructure
+  for idx, p in params:
+    if p.derivative.isSome:       
+      var unk:Unknown
+      unk.index = idx.uint
+      if md.derivatives.isNone:      
+        md.derivatives = @[unk].some
+        md.initialUnknowns = @[unk].some
+      else:
+        md.derivatives.get.add unk
+        md.initialUnknowns.get.add unk        
 
-  for p in paramsI:
-    var scalarVariable = ScalarVariable(kind:svkInteger)
-    scalarVariable.name = p.name
-    scalarVariable.valueReference = p.idx.uint
-    scalarVariable.description = some( p.description )
-    scalarVariable.causality = some( $p.causality )
-    scalarVariable.variability = some( $p.variability )
-    scalarVariable.initial = some( $p.initial )
-    #scalarVariable.kind = svkInteger
-    var integer:Integer
-    #a.declaredType = some("prueba")
-    integer.start = some(p.initVal)
-    #a.derivative = some(2.uint)
-    scalarVariable.childInteger = integer
-    #echo repr param
-    #discard
-    xmldata.variables.add scalarVariable#.get #scalarVariable(param)
-
-  for p in paramsR:
-    var scalarVariable = ScalarVariable(kind: svkReal )
-    scalarVariable.name = p.name
-    scalarVariable.valueReference = p.idx.uint
-    scalarVariable.description = some( p.description )
-    scalarVariable.causality = some( $p.causality )
-    scalarVariable.variability = some( $p.variability )
-    scalarVariable.initial = some($p.initial )
-    #scalarVariable.kind = svkReal
-    var real:Real
-    #a.declaredType = some("prueba")
-    real.start = some(p.initVal)
-    #a.derivative = some(2.uint)
-    scalarVariable.childReal = real
-    xmldata.variables.add scalarVariable#.get #scalarVariable(param)
-
-
-
-
-
-
-
+  xmldata.structure = md
 
   return xmlHeader & $xmldata.gen
-  #result = xmlHeader & $k
 
 when isMainModule:
   echo createXml("inc", "{8c4e810f-3df3-4a00-8276-176fa3c9f008}", 0)

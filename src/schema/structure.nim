@@ -39,12 +39,12 @@ import options, xmltree, strformat, strutils, typetraits
 
 
 type
-  DependenciesKind = enum
+  DependenciesKind* = enum
     dkDependent, dkConstant, dkFixed, dkTunable, dkDiscrete
-  Unknown = object
-    index:uint
-    dependencies:Option[seq[uint]]
-    dependenciesKind:Option[seq[DependenciesKind]]
+  Unknown* = object
+    index*:uint
+    dependencies*:Option[seq[uint]]
+    dependenciesKind*:Option[seq[DependenciesKind]]
 
 proc `$`(dk:DependenciesKind):string =
   result = case dk
@@ -79,33 +79,40 @@ proc get(r:Unknown):XmlNode =
 
   return newXmlTree("Unknown", [], attributes)
 
-
+#[
 type
-  Outputs = seq[Unknown]#object
-  Derivatives = seq[Unknown]
-  InitialUnknowns = seq[Unknown]  
+  Outputs* = seq[Unknown] #object
+  Derivatives* = seq[Unknown]
+  InitialUnknowns* = seq[Unknown]  
+]#
 
-proc get[T:OutPuts | Derivatives | InitialUnknowns](r:T):XmlNode =
-  var tag = r.type.name
+#proc get[T:OutPuts | Derivatives | InitialUnknowns](r:T):XmlNode =
+proc get(r:seq[Unknown]):seq[XmlNode] =
+  #var tag = r.type.name
+  #echo tag
   var children:seq[XmlNode]
   for i in r:
     children.add i.get
-  return newXmlTree(tag, children)
+  #return newXmlTree(tag, children)
+  return children
 
 type
   ModelStructure* = object
-    outputs:Option[Outputs] # = seq[Unknown]#object
-    derivatives:Option[Derivatives]# = distinct Outputs
-    initialUnknowns:Option[InitialUnknowns] #= distinct Outputs    
+    outputs*:         Option[seq[Unknown]] #Option[Outputs] # = seq[Unknown]#object
+    derivatives*:     Option[seq[Unknown]] #Option[Derivatives]# = distinct Outputs
+    initialUnknowns*: Option[seq[Unknown]] #Option[InitialUnknowns] #= distinct Outputs    
 
 proc get*(r:ModelStructure):XmlNode =
   var children:seq[XmlNode]
   if r.outputs.isSome:
-    children.add r.outputs.get.get
+    var ch = r.outputs.get.get
+    children.add newXmlTree("Outputs", ch)
   if r.derivatives.isSome:
-    children.add r.derivatives.get.get
+    var ch = r.derivatives.get.get
+    children.add newXmlTree("Derivatives", ch)
   if r.initialUnknowns.isSome:
-    children.add r.initialUnknowns.get.get
+    var ch = r.initialUnknowns.get.get
+    children.add newXmlTree("InitialUnknowns", ch)
   
   return newXmlTree("ModelStructure", children, nil)
 

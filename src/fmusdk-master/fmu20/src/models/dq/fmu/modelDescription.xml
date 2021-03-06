@@ -5,13 +5,12 @@
   guid="{8c4e810f-3df3-4a00-8276-176fa3c9f000}"
   numberOfEventIndicators="0">
 
-<CoSimulation
-  modelIdentifier="dq"
-  canHandleVariableCommunicationStepSize="true">
+<ModelExchange
+  modelIdentifier="dq">
   <SourceFiles>
     <File name="dq.c"/>
   </SourceFiles>
-</CoSimulation>
+</ModelExchange>
 
 <LogCategories>
   <Category name="logAll"/>

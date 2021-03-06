@@ -27,10 +27,14 @@ proc fmi2GetReal*( comp: ModelInstance;
 
     # nly compiled if nReals >0
     when nReals > 0:
-        var v = cast[ptr UncheckedArray[fmi2ValueReference]](nvr.int * sizeof(fmi2ValueReference))   #cast[ptr UncheckedArray[Player]](realloc(players, Player.sizeof * 4))
+        var v = cast[ptr UncheckedArray[fmi2ValueReference]](vr) #nvr.int * sizeof(fmi2ValueReference))   #cast[ptr UncheckedArray[Player]](realloc(players, Player.sizeof * 4))
         for i in 0 ..< nvr:
             if vrOutOfRange(comp, "fmi2GetReal", vr[i], nReals):
                 return fmi2Error
+            #echo repr comp
+            #echo v[i]
+            #echo "NVR: ", nvr
+            #echo "----> ", repr v[0]
             value[i] = getReal(comp, v[i]) # <--------to be implemented by the includer of this file
             #value[i] = comp.r[vr[i]]
             #value[i] = r[val] #getReal(comp, val)

@@ -183,7 +183,7 @@ proc get(r:Enumeration):XmlNode =
   let attributes = att.toXmlAttributes
 
   return newXmlTree("Enumeration", [], attributes)
-
+#[
 type
   ScalarVariableKind* = enum
      svkReal, svkInteger, svkBoolean, svkString, svkEnumeration
@@ -207,44 +207,8 @@ type
       childString*:String
     of svkEnumeration:
       childEnumeration*:Enumeration                 
+]#
 
-proc get*(r:ScalarVariable):XmlNode =
-  var att:seq[(string,string)]
-  if r.name == "":
-    quit("`name` needs to contain a string", QuitFailure)
-  att.add ("name", r.name)
-
-  #if r.valueReference == 0.uint:
-  #  quit("`valueReference` needs to be >0", QuitFailure)
-  att.add ("valueReference", fmt"{r.valueReference}")
-
-  if r.description.isSome:
-    att.add ("description", r.description.get)
-  if r.causality.isSome:
-    att.add ("causality", r.causality.get)
-  if r.variability.isSome:
-    att.add ("variability", r.variability.get)
-  if r.initial.isSome:
-    att.add ("initial", r.initial.get)
-  if r.canHandleMultipleSetPerTimeInstant.isSome:
-    att.add ("canHandleMultipleSetPerTimeInstant", r.canHandleMultipleSetPerTimeInstant.get) 
-
-  let attributes = att.toXmlAttributes
-
-  var children:seq[XmlNode]
-  case r.kind
-  of svkReal:
-    children.add get(r.childReal)
-  of svkInteger:
-    children.add get(r.childInteger)
-  of svkBoolean:
-    children.add get(r.childBoolean)
-  of svkString:
-    children.add get(r.childString)
-  of svkEnumeration:
-    children.add get(r.childEnumeration)
-  
-  return newXmlTree("ScalarVariable",children, attributes)
 
 
 when isMainModule:

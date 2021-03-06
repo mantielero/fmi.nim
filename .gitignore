@@ -4,7 +4,10 @@ src/xml
 src/genfmu
 src/inc.so
 src/fmuT*
-src/prueba.fmu
+src/*.fmu
+examples/*
+!examples/*.nim
+!examples/fmusim_me
 result.csv
 .vscode/
 *~

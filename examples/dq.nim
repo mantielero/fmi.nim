@@ -14,17 +14,21 @@ line will create completely a `inc.fmu` in this case:
 To test `inc.fmu`, the following will test it for 10sec using 0.1sec steps:
 
     $ fmusdk-master/fmu20/bin/fmusim_me inc.fmu 10 0.1
+
+
+Número de estados:
+
+    causality="local" variability="continuous" initial="exact"
 ]#
-import fmusdk
+import ../src/fmusdk
 
 fmu( "dq", "{8c4e810f-3df3-4a00-8276-176fa3c9f000}"):
   var x:float = 1.0
+  register( x, cLocal, vContinuous, iExact, "the only state" )
+  
   var k:float = 1.0
+  register(k, cParameter, vFixed, iExact, "" )  
+  
   var x_dot:float
   der(x_dot, x): -k * x
-  register(x,     cLocal,     vContinuous, iExact,      "the only state" )
-  #register(der_x, cLocal,     vContinuous, iCalculated, "" )
-  register(k,     cParameter, vFixed,      iExact,      "" )
-  
-  #equations:
-  #  der_x = -k * x
+
